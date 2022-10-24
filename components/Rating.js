@@ -3,7 +3,7 @@ import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
 
-export default function Rating({ rate }) {
+export default function Rating({ rate,size=15 }) {
   return (
     <View
       style={{
@@ -21,27 +21,27 @@ export default function Rating({ rate }) {
       >
         <FontAwesome
           name={rate >= 1 ? "star" : rate >= 0.5 ? "star-half-empty" : "star-o"}
-          size={15}
+          size={size}
           color="yellow"
         />
         <FontAwesome
           name={rate >= 2 ? "star" : rate >= 1.5 ? "star-half-empty" : "star-o"}
-          size={15}
+          size={size}
           color="yellow"
         />
         <FontAwesome
           name={rate >= 3 ? "star" : rate >= 2.5 ? "star-half-empty" : "star-o"}
-          size={15}
+          size={size}
           color="yellow"
         />
         <FontAwesome
           name={rate >= 4 ? "star" : rate >= 3.5 ? "star-half-empty" : "star-o"}
-          size={15}
+          size={size}
           color="yellow"
         />
         <FontAwesome
           name={rate >= 5 ? "star" : rate >= 4.5 ? "star-half-empty" : "star-o"}
-          size={15}
+          size={size}
           color="yellow"
         />
       </View>

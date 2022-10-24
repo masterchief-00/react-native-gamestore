@@ -33,7 +33,7 @@ export default function GameDetails({ route }) {
               paddingTop: 80,
             }}
           >
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               <View
                 style={{
                   marginTop: 20,

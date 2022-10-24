@@ -105,7 +105,7 @@ export const games = [
     image: {
       uri: "https://www.global-esports.news/wp-content/uploads/2022/05/Halo-Infinite-Season-2-1.jpg",
     },
-    image_tall: require("../assets/images/bg-halo-i.png"),
+    image_tall: require("../assets/images/bg-halo-infinite.jpg"),
     rating: 4,
     reviews: 12345,
     downloads: 5424337,
