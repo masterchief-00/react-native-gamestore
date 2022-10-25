@@ -5,14 +5,23 @@ import {
   ImageBackground,
   TouchableOpacity,
   Modal,
+  TextInput,
+  Button,
 } from "react-native";
 import React, { useState } from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../data/Colours";
-import { Feather, Entypo, AntDesign, MaterialIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  Entypo,
+  AntDesign,
+  MaterialIcons,
+  Ionicons,
+} from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
 import DetailsButton from "../components/DetailsButton";
+import * as ImagePicker from "expo-image-picker";
 
 const bgImage = {
   uri: "https://www.teahub.io/photos/full/157-1572467_wallpaper-halo-5-soldiers-weapons-automaton-fondos-de.jpg",
@@ -20,6 +29,22 @@ const bgImage = {
 
 export default function UserProfile() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEdit, setSelectedEdit] = useState({});
+  const [image, setImage] = useState(null);
+
+  let pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [2, 2],
+    });
+
+    console.log(result.uri);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -65,7 +90,10 @@ export default function UserProfile() {
                     left: 70,
                     zIndex: 3,
                   }}
-                  onPress={() => setModalVisible(true)}
+                  onPress={() => {
+                    setSelectedEdit("image");
+                    setModalVisible(true);
+                  }}
                 >
                   <Feather
                     name="edit"
@@ -144,7 +172,10 @@ export default function UserProfile() {
                     left: 163,
                     zIndex: 3,
                   }}
-                  onPress={() => setModalVisible(true)}
+                  onPress={() => {
+                    setSelectedEdit("name");
+                    setModalVisible(true);
+                  }}
                 >
                   <Feather
                     name="edit"
@@ -285,7 +316,10 @@ export default function UserProfile() {
                   left: 205,
                   zIndex: 3,
                 }}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+                  setSelectedEdit("about");
+                  setModalVisible(true);
+                }}
               >
                 <Feather
                   name="edit"
@@ -328,8 +362,9 @@ export default function UserProfile() {
             <View
               style={{
                 backgroundColor: colors.bg,
+                paddingBottom: 20,
                 width: "97%",
-                height: "50%",
+                // height: "50%",
                 alignItems: "center",
                 borderTopLeftRadius: 40,
                 borderTopRightRadius: 40,
@@ -338,14 +373,95 @@ export default function UserProfile() {
                 borderColor: colors.primary_x,
               }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <DetailsButton
-                  text="Close"
-                  bg={colors.yellow}
-                  color={colors.black}
-                  width={100}
-                  onPress={() => setModalVisible(false)}
-                />
+              <View style={{ alignItems: "center" }}>
+                {selectedEdit === "image" && (
+                  <View style={{ marginTop: 20, alignItems: "center" }}>
+                    <Text
+                      style={{
+                        color: colors.white,
+                        fontWeight: "bold",
+                        fontSize: 20,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      New profile Image
+                    </Text>
+                    <TouchableOpacity
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 15,
+                        borderStyle: "dashed",
+                        borderWidth: 1,
+                        borderColor: colors.primary_variant_x,
+                        padding: 10,
+                      }}
+                      onPress={pickImage}
+                    >
+                      <Ionicons
+                        name="images-outline"
+                        size={24}
+                        color={colors.white}
+                      />
+                      <Text
+                        style={{
+                          color: colors.white,
+                          fontWeight: "bold",
+                          fontSize: 15,
+                          textTransform: "uppercase",
+                          paddingHorizontal: 5,
+                        }}
+                      >
+                        Select image
+                      </Text>
+                    </TouchableOpacity>
+                    {image && (
+                      <View style={{ marginTop: 15 }}>
+                        <Image
+                          source={{ uri: image }}
+                          resizeMode="contain"
+                          style={{ height: 100, width: 100, borderRadius: 5 }}
+                        />
+                      </View>
+                    )}
+                  </View>
+                )}
+                {selectedEdit === "name" && (
+                  <View style={{ marginTop: 15 }}>
+                    <Text
+                      style={{
+                        color: colors.white,
+                        fontWeight: "bold",
+                        fontSize: 20,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Update user name
+                    </Text>
+                    <TextInput placeholder="New user name" placeholderTextColor={colors.white_a}/>
+                  </View>
+                )}
+                {selectedEdit === "about" && (
+                  <Text style={{ color: colors.white }}>about</Text>
+                )}
+                <View style={{ flexDirection: "row" }}>
+                  <DetailsButton
+                    text="Submit"
+                    bg={colors.primary_variant_x}
+                    color={colors.black}
+                    width={100}
+                    mt={10}
+                    onPress={() => setModalVisible(false)}
+                  />
+                  <DetailsButton
+                    text="Close"
+                    bg={colors.yellow}
+                    color={colors.black}
+                    width={100}
+                    mt={10}
+                    onPress={() => setModalVisible(false)}
+                  />
+                </View>
               </View>
             </View>
           </View>
