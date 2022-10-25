@@ -427,7 +427,7 @@ export default function UserProfile() {
                   </View>
                 )}
                 {selectedEdit === "name" && (
-                  <View style={{ marginTop: 15 }}>
+                  <View style={{ marginTop: 15, alignItems: "center" }}>
                     <Text
                       style={{
                         color: colors.white,
@@ -438,11 +438,50 @@ export default function UserProfile() {
                     >
                       Update user name
                     </Text>
-                    <TextInput placeholder="New user name" placeholderTextColor={colors.white_a}/>
+                    <TextInput
+                      placeholder="New user name"
+                      placeholderTextColor={colors.white_a}
+                      style={{
+                        color: colors.primary_variant_x,
+                        fontSize: 15,
+                        marginVertical: 15,
+                        padding: 10,
+                        borderBottomWidth: 2,
+                        backgroundColor: colors.primary_a,
+                        borderColor: colors.primary_variant_x,
+                      }}
+                    />
                   </View>
                 )}
                 {selectedEdit === "about" && (
-                  <Text style={{ color: colors.white }}>about</Text>
+                  <View style={{ marginTop: 15, alignItems: "center" }}>
+                    <Text
+                      style={{
+                        color: colors.white,
+                        fontWeight: "bold",
+                        fontSize: 20,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Update about
+                    </Text>
+                    <TextInput
+                      placeholder="Your new about"
+                      placeholderTextColor={colors.white_a}
+                      multiline
+                      style={{
+                        color: colors.primary_variant_x,
+                        fontSize: 15,
+                        marginVertical: 15,
+                        padding: 10,
+                        borderWidth: 0.4,
+                        width: 200,
+                        borderRadius: 3,
+                        backgroundColor: colors.primary_a,
+                        borderColor: colors.primary_variant_x,
+                      }}
+                    />
+                  </View>
                 )}
                 <View style={{ flexDirection: "row" }}>
                   <DetailsButton

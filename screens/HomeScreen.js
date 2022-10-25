@@ -7,6 +7,7 @@ import NewGames from "../components/NewGames";
 import TopGames from "../components/TopGames";
 import MostDownloaded from "../components/MostDownloaded";
 import QuickSearch from "../components/QuickSearch";
+import AddGame from "../components/AddGame";
 
 const bgImage = require("../assets/images/home-bg-1.jpg");
 
@@ -27,6 +28,7 @@ export default function HomeScreen({ navigation }) {
             <TopGames />
             <MostDownloaded />
           </ScrollView>
+          <AddGame />
         </View>
       </ImageBackground>
     </View>
