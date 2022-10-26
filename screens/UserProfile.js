@@ -23,6 +23,7 @@ import CustomButton from "../components/CustomButton";
 import DetailsButton from "../components/DetailsButton";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
+import { useNavigation } from "@react-navigation/native";
 
 const bgImage = {
   uri: "https://i.pinimg.com/originals/fb/0d/4e/fb0d4e4bebc7b221aa3c03091766d4e2.jpg",
@@ -32,6 +33,7 @@ export default function UserProfile() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEdit, setSelectedEdit] = useState({});
   const [image, setImage] = useState(null);
+  const navigation = useNavigation();
 
   let pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -332,6 +334,7 @@ export default function UserProfile() {
 
             <View style={{ alignItems: "center" }}>
               <CustomButton
+                onPress={() => navigation.navigate("Signup")}
                 bg={colors.yellow}
                 color={colors.black}
                 bdcolor={colors.yellow}

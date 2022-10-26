@@ -62,6 +62,7 @@ export default function SignupScreen({ navigation }) {
 
   useEffect(() => {
     if (isFocused) {
+      setSndIcon(true);
       playSound();
       setIndicatorVisibility(false);
     }
@@ -90,6 +91,8 @@ export default function SignupScreen({ navigation }) {
                 fontWeight: "bold",
                 fontSize: 45,
                 width: 200,
+                textShadowColor: "black",
+                textShadowRadius: 8,
               }}
             >
               Fill this up
