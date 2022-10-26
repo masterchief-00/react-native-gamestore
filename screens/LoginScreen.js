@@ -5,6 +5,7 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { globalStyles } from "../data/GlobalStyles";
@@ -15,7 +16,7 @@ import { Formik } from "formik";
 import CustomButton from "../components/CustomButton";
 import { useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
-import sndFile from "../assets/audio/bgaudio.m4a";
+import { Feather } from "@expo/vector-icons";
 
 const bgImage = {
   uri: "https://www.xtrafondos.com/en/descargar.php?id=1766&vertical=1",
@@ -23,6 +24,7 @@ const bgImage = {
 export default function LoginScreen({ navigation }) {
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
   const [sound, setSound] = useState(null);
+  const [sndIcon, setSndIcon] = useState(true);
 
   async function playSound() {
     if (sound === null) {
@@ -30,7 +32,9 @@ export default function LoginScreen({ navigation }) {
       const { sound } = await Audio.Sound.createAsync(
         require("../assets/audio/bgaudio.m4a")
       );
+      sound.setIsLoopingAsync();
       setSound(sound);
+
       console.log("Playing sound");
       await sound.playAsync();
     }
@@ -41,6 +45,11 @@ export default function LoginScreen({ navigation }) {
     setIndicatorVisibility(true);
     stopMusic();
     navigation.navigate("BottomTabs");
+  };
+
+  const toggleMusic = async () => {
+    console.log("toggling music");
+    sndIcon ? sound.pauseAsync() : sound.replayAsync();
   };
 
   const stopMusic = () => {
@@ -212,6 +221,26 @@ export default function LoginScreen({ navigation }) {
                 }}
               />
             </View>
+            <TouchableOpacity
+              onPress={() => {
+                setSndIcon(!sndIcon);
+                toggleMusic();
+              }}
+              style={{
+                position: "absolute",
+                bottom: 27,
+                right: 60,
+                backgroundColor: colors.white_a,
+                borderRadius: 15,
+                padding: 3,
+              }}
+            >
+              <Feather
+                name={sndIcon ? "volume-2" : "volume-x"}
+                size={20}
+                color={colors.white}
+              />
+            </TouchableOpacity>
           </View>
         </LinearGradient>
       </ImageBackground>

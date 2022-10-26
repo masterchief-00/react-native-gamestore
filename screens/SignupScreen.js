@@ -4,20 +4,68 @@ import {
   ImageBackground,
   TextInput,
   Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../data/Colours";
 import { Formik } from "formik";
 import CustomButton from "../components/CustomButton";
+import { useIsFocused } from "@react-navigation/native";
+import { Audio } from "expo-av";
+import { Feather } from "@expo/vector-icons";
 
 const bgImage = {
   uri: "https://images.wallpapersden.com/image/download/call-of-duty-warzone-hd-gaming_bGxmbmeUmZqaraWkpJRmaWllrWdqa2U.jpg",
 };
 
 export default function SignupScreen({ navigation }) {
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const [sound, setSound] = useState(null);
+  const [sndIcon, setSndIcon] = useState(true);
+
+  async function playSound() {
+    if (sound === null) {
+      console.log("Loading sound");
+      const { sound } = await Audio.Sound.createAsync(
+        require("../assets/audio/bgaudio2.m4a")
+      );
+      sound.setIsLoopingAsync();
+      setSound(sound);
+
+      console.log("Playing sound");
+      await sound.playAsync();
+    }
+  }
+
+  const isFocused = useIsFocused();
+  const handleNavigation = () => {
+    setIndicatorVisibility(true);
+    stopMusic();
+    navigation.navigate("BottomTabs");
+  };
+
+  const toggleMusic = async () => {
+    console.log("toggling music");
+    sndIcon ? sound.pauseAsync() : sound.replayAsync();
+  };
+
+  const stopMusic = () => {
+    console.log("Unloading sound");
+    sound.stopAsync();
+    sound.unloadAsync();
+    setSound(null);
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      playSound();
+      setIndicatorVisibility(false);
+    }
+  }, [isFocused]);
   return (
     <View style={{ flex: 1 }}>
       <StatusBar style="dark" />
@@ -139,7 +187,7 @@ export default function SignupScreen({ navigation }) {
                     text="Sign up"
                     bdcolor="transparent"
                     mt={20}
-                    onPress={() => navigation.navigate("BottomTabs")}
+                    onPress={handleNavigation}
                   />
                 </View>
               )}
@@ -152,6 +200,13 @@ export default function SignupScreen({ navigation }) {
                 alignItems: "center",
               }}
             >
+              {indicatorVisible && (
+                <ActivityIndicator
+                  size="large"
+                  color={colors.white}
+                  style={{ marginBottom: 10 }}
+                />
+              )}
               <View style={{ flexDirection: "row" }}>
                 <Text
                   style={{
@@ -163,7 +218,12 @@ export default function SignupScreen({ navigation }) {
                 >
                   Or maybe,{" "}
                 </Text>
-                <Pressable onPress={() => navigation.navigate("Login")}>
+                <Pressable
+                  onPress={() => {
+                    stopMusic();
+                    navigation.navigate("Login");
+                  }}
+                >
                   <Text
                     style={{
                       color: colors.yellow,
@@ -187,6 +247,26 @@ export default function SignupScreen({ navigation }) {
                 }}
               />
             </View>
+            <TouchableOpacity
+              onPress={() => {
+                setSndIcon(!sndIcon);
+                toggleMusic();
+              }}
+              style={{
+                position: "absolute",
+                bottom: 100,
+                right: 60,
+                backgroundColor: colors.white_a,
+                borderRadius: 15,
+                padding: 3,
+              }}
+            >
+              <Feather
+                name={sndIcon ? "volume-2" : "volume-x"}
+                size={20}
+                color={colors.white}
+              />
+            </TouchableOpacity>
           </View>
         </LinearGradient>
       </ImageBackground>
