@@ -8,12 +8,15 @@ import TopGames from "../components/TopGames";
 import MostDownloaded from "../components/MostDownloaded";
 import QuickSearch from "../components/QuickSearch";
 import AddGame from "../components/AddGame";
+import LatestWishlist from "../components/LatestWishlist";
+import { StatusBar } from "expo-status-bar";
 
 const bgImage = require("../assets/images/home-bg-1.jpg");
 
 export default function HomeScreen({ navigation }) {
   return (
     <View style={globalStyles.container}>
+      <StatusBar style="light" />
       <ImageBackground
         source={bgImage}
         resizeMode="cover"
@@ -27,6 +30,7 @@ export default function HomeScreen({ navigation }) {
             <NewGames />
             <TopGames />
             <MostDownloaded />
+            <LatestWishlist />
           </ScrollView>
           <AddGame />
         </View>

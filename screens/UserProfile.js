@@ -22,9 +22,10 @@ import {
 import CustomButton from "../components/CustomButton";
 import DetailsButton from "../components/DetailsButton";
 import * as ImagePicker from "expo-image-picker";
+import { Formik } from "formik";
 
 const bgImage = {
-  uri: "https://www.teahub.io/photos/full/157-1572467_wallpaper-halo-5-soldiers-weapons-automaton-fondos-de.jpg",
+  uri: "https://i.pinimg.com/originals/fb/0d/4e/fb0d4e4bebc7b221aa3c03091766d4e2.jpg",
 };
 
 export default function UserProfile() {
@@ -373,6 +374,15 @@ export default function UserProfile() {
                 borderColor: colors.primary_x,
               }}
             >
+              <View
+                style={{
+                  width: "30%",
+                  height: 5,
+                  backgroundColor: colors.primary_variant_x,
+                  marginTop: 15,
+                  borderRadius: 15,
+                }}
+              />
               <View style={{ alignItems: "center" }}>
                 {selectedEdit === "image" && (
                   <View style={{ marginTop: 20, alignItems: "center" }}>
@@ -438,19 +448,36 @@ export default function UserProfile() {
                     >
                       Update user name
                     </Text>
-                    <TextInput
-                      placeholder="New user name"
-                      placeholderTextColor={colors.white_a}
-                      style={{
-                        color: colors.primary_variant_x,
-                        fontSize: 15,
-                        marginVertical: 15,
-                        padding: 10,
-                        borderBottomWidth: 2,
-                        backgroundColor: colors.primary_a,
-                        borderColor: colors.primary_variant_x,
+
+                    <Formik
+                      initialValues={{
+                        name: "",
                       }}
-                    />
+                      onSubmit={(values) => console.log(values)}
+                    >
+                      {({ handleChange, handleBlur, handleSubmit, values }) => (
+                        <View style={{ alignItems: "center", marginTop: 20 }}>
+                          {/* ------------------TITLE--------------- */}
+                          <TextInput
+                            placeholder="New user name"
+                            onChangeText={handleChange("name")}
+                            onBlur={handleBlur("name")}
+                            value={values.name}
+                            placeholderTextColor={colors.primary}
+                            style={{
+                              color: colors.primary_variant_x,
+                              textAlign: "center",
+                              backgroundColor: colors.bg_variant,
+                              fontSize: 15,
+                              width: 250,
+                              height: 40,
+                              borderBottomWidth: 1.5,
+                              borderColor: colors.primary_variant_x,
+                            }}
+                          />
+                        </View>
+                      )}
+                    </Formik>
                   </View>
                 )}
                 {selectedEdit === "about" && (
@@ -465,25 +492,38 @@ export default function UserProfile() {
                     >
                       Update about
                     </Text>
-                    <TextInput
-                      placeholder="Your new about"
-                      placeholderTextColor={colors.white_a}
-                      multiline
-                      style={{
-                        color: colors.primary_variant_x,
-                        fontSize: 15,
-                        marginVertical: 15,
-                        padding: 10,
-                        borderWidth: 0.4,
-                        width: 200,
-                        borderRadius: 3,
-                        backgroundColor: colors.primary_a,
-                        borderColor: colors.primary_variant_x,
+
+                    <Formik
+                      initialValues={{
+                        name: "",
                       }}
-                    />
+                      onSubmit={(values) => console.log(values)}
+                    >
+                      {({ handleChange, handleBlur, handleSubmit, values }) => (
+                        <View style={{ alignItems: "center", marginTop: 20 }}>
+                          {/* ------------------TITLE--------------- */}
+                          <TextInput
+                            placeholder="Your new about"
+                            placeholderTextColor={colors.white_a}
+                            multiline
+                            style={{
+                              color: colors.primary_variant_x,
+                              fontSize: 15,
+                              marginVertical: 15,
+                              padding: 10,
+                              borderWidth: 0.4,
+                              width: 200,
+                              borderRadius: 3,
+                              backgroundColor: colors.primary_a,
+                              borderColor: colors.primary_variant_x,
+                            }}
+                          />
+                        </View>
+                      )}
+                    </Formik>
                   </View>
                 )}
-                <View style={{ flexDirection: "row" }}>
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
                   <DetailsButton
                     text="Submit"
                     bg={colors.primary_variant_x}

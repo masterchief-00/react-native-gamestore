@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { colors } from "../data/Colours";
 import CustomButton from "../components/CustomButton";
@@ -12,18 +12,23 @@ export default function Greetings({ navigation }) {
   return (
     <View style={globalStyles.container}>
       <StatusBar backgroundColor="transparent" style="light" />
-      <ImageBackground source={bgImage} resizeMode="cover" style={globalStyles.image}>
+      <ImageBackground
+        source={bgImage}
+        resizeMode="cover"
+        style={globalStyles.image}
+      >
         <View style={styles.subContainer}>
           <Ionicons name="ios-game-controller" size={40} color={colors.white} />
           <Text style={styles.greetingsText}>
             Play by your rules, let's gooo!
           </Text>
+
           <CustomButton
             bg={colors.primary_x}
             color={colors.white}
             width={300}
-            text='Explore'
-            onPress={() => navigation.navigate("BottomTabs")}
+            text="Explore"
+            onPress={() => navigation.navigate("Login")}
           />
         </View>
       </ImageBackground>
@@ -37,7 +42,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     marginBottom: 40,
-  },  
+  },
   greetingsText: {
     color: colors.white,
     fontWeight: "bold",

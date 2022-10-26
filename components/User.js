@@ -2,8 +2,10 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
+import { useNavigation } from "@react-navigation/native";
 
 export default function User() {
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -20,6 +22,7 @@ export default function User() {
       />
       <TouchableOpacity
         style={{ flexDirection: "row-reverse", alignItems: "center" }}
+        onPress={() => navigation.navigate("Login")}
       >
         <Text
           style={{
