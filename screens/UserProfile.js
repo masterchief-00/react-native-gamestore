@@ -15,7 +15,6 @@ import { colors } from "../data/Colours";
 import {
   Feather,
   Entypo,
-  AntDesign,
   MaterialIcons,
   Ionicons,
 } from "@expo/vector-icons";
@@ -24,6 +23,7 @@ import DetailsButton from "../components/DetailsButton";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const bgImage = {
   uri: "https://i.pinimg.com/originals/fb/0d/4e/fb0d4e4bebc7b221aa3c03091766d4e2.jpg",
@@ -34,6 +34,8 @@ export default function UserProfile() {
   const [selectedEdit, setSelectedEdit] = useState({});
   const [image, setImage] = useState(null);
   const navigation = useNavigation();
+
+  const userData = useSelector((state) => state.user.userData);
 
   let pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -106,17 +108,37 @@ export default function UserProfile() {
                 </TouchableOpacity>
               </View>
               <View>
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 40,
-                    color: colors.white,
-                    textShadowColor: colors.black,
-                    textShadowRadius: 13,
-                  }}
-                >
-                  John Doe
-                </Text>
+                <View style={{ flexDirection: "row",justifyContent:'center' }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 40,
+                      color: colors.white,
+                      textShadowColor: colors.black,
+                      textShadowRadius: 13,
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {userData.name}
+                  </Text>
+                  <TouchableOpacity
+                    style={{
+                      marginTop:8,
+                      zIndex: 3,
+                    }}
+                    onPress={() => {
+                      setSelectedEdit("name");
+                      setModalVisible(true);
+                    }}
+                  >
+                    <Feather
+                      name="edit"
+                      size={20}
+                      color={colors.primary_variant_x}
+                    />
+                  </TouchableOpacity>
+                </View>
+
                 <View style={{ alignItems: "center" }}>
                   <Text
                     style={{
@@ -125,7 +147,7 @@ export default function UserProfile() {
                       fontSize: 13,
                     }}
                   >
-                    Joined 12/04/2017
+                    Joined {userData.joinDate}
                   </Text>
                   <View
                     style={{
@@ -144,7 +166,7 @@ export default function UserProfile() {
                         marginLeft: 5,
                       }}
                     >
-                      doe@gmail.com
+                      {userData.email}
                     </Text>
                   </View>
                   <View
@@ -164,28 +186,10 @@ export default function UserProfile() {
                         marginLeft: 5,
                       }}
                     >
-                      Kigali,Rwanda
+                      {userData.location}
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity
-                  style={{
-                    position: "absolute",
-                    top: 10,
-                    left: 163,
-                    zIndex: 3,
-                  }}
-                  onPress={() => {
-                    setSelectedEdit("name");
-                    setModalVisible(true);
-                  }}
-                >
-                  <Feather
-                    name="edit"
-                    size={20}
-                    color={colors.primary_variant_x}
-                  />
-                </TouchableOpacity>
               </View>
             </View>
             <View
@@ -213,7 +217,7 @@ export default function UserProfile() {
                 <Text
                   style={{ color: "white", fontWeight: "300", fontSize: 25 }}
                 >
-                  334
+                  {userData.games}
                 </Text>
                 <View
                   style={{
@@ -222,8 +226,8 @@ export default function UserProfile() {
                     // opacity: 0.9,
                   }}
                 >
-                  <AntDesign
-                    name="like1"
+                  <Ionicons 
+                    name="game-controller"
                     size={15}
                     color={colors.primary_variant_x}
                   />
@@ -235,7 +239,7 @@ export default function UserProfile() {
                       marginLeft: 5,
                     }}
                   >
-                    Likes
+                    Games
                   </Text>
                 </View>
               </View>
@@ -247,7 +251,7 @@ export default function UserProfile() {
                 <Text
                   style={{ color: "white", fontWeight: "300", fontSize: 25 }}
                 >
-                  16
+                  {userData.wishlist}
                 </Text>
                 <View
                   style={{

@@ -20,6 +20,10 @@ import CustomButton from "../components/CustomButton";
 import { useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
 import { Feather, Entypo } from "@expo/vector-icons";
+import axios from "axios";
+import { API_URL } from "@env";
+import { useDispatch, useSelector } from "react-redux";
+import { UserActions } from "../redux/UserSlice";
 
 const bgImage = {
   uri: "https://www.xtrafondos.com/en/descargar.php?id=1766&vertical=1",
@@ -29,6 +33,8 @@ export default function LoginScreen({ navigation }) {
   const [sound, setSound] = useState(null);
   const [sndIcon, setSndIcon] = useState(true);
   const [modalVisible, setmodalVisible] = useState(false);
+  const user = useSelector((state) => state.user.userData);
+  const dispatch = useDispatch();
 
   async function playSound() {
     if (sound === null) {
@@ -45,8 +51,8 @@ export default function LoginScreen({ navigation }) {
   }
 
   const isFocused = useIsFocused();
+
   const handleNavigation = () => {
-    setIndicatorVisibility(true);
     stopMusic();
     navigation.navigate("BottomTabs");
   };
@@ -108,7 +114,34 @@ export default function LoginScreen({ navigation }) {
                   email: "",
                   password: "",
                 }}
-                onSubmit={(values) => console.log(values)}
+                onSubmit={(values) => {
+                  setIndicatorVisibility(true);
+                  axios({
+                    method: "post",
+                    url: `${API_URL}/users/login`,
+                    data: {
+                      email: values.email,
+                      password: values.password,
+                    },
+                  })
+                    .then((response) => {
+                      if (response.status === 200) {
+                        dispatch(
+                          UserActions.setUserData({
+                            name: response.data.user.name,
+                            email: response.data.user.email,
+                            location: response.data.user.location,
+                            joinDate: response.data.joinDate,
+                            wishlist: response.data.wishlist,
+                            games: response.data.games,
+                            token: response.data.token,
+                          })
+                        );
+                        handleNavigation();
+                      }
+                    })
+                    .catch((error) => console.log(error));
+                }}
               >
                 {({ handleChange, handleBlur, handleSubmit, values }) => (
                   <View style={{ alignItems: "center", marginTop: 20 }}>
@@ -137,6 +170,7 @@ export default function LoginScreen({ navigation }) {
                       onBlur={handleBlur("password")}
                       value={values.password}
                       placeholderTextColor={colors.white}
+                      secureTextEntry={true}
                       style={{
                         color: colors.white,
                         padding: 10,
@@ -173,7 +207,8 @@ export default function LoginScreen({ navigation }) {
                       text="Login"
                       bdcolor="transparent"
                       mt={50}
-                      onPress={handleNavigation}
+                      disabled={indicatorVisible}
+                      onPress={handleSubmit}
                     />
                   </View>
                 )}

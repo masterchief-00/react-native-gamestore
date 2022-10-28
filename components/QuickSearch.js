@@ -7,11 +7,16 @@ import {
   Modal,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { colors } from "../data/Colours";
 import { Ionicons } from "@expo/vector-icons";
 import DetailsButton from "./DetailsButton";
 import { Formik } from "formik";
+import axios from "axios";
+import { API_URL } from "@env";
+import { useIsFocused } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { CategoryActions } from "../redux/CategorySlice";
 
 const categories = [
   { name: "Explore", active: true },
@@ -25,7 +30,32 @@ const categories = [
 
 export default function QuickSearch() {
   const [modalVisible, setModalVisible] = useState(false);
+  const userData = useSelector((state) => state.user.userData);
+  const token = userData.token;
+  const isFocused = useIsFocused();
+  const categoryList = useSelector((state) => state.category.categories);
+  const dispatch = useDispatch();
+  const [activeCategory, setActiveCategory] = useState("explore");
 
+  useEffect(() => {
+    if (isFocused) {
+      axios({
+        method: "get",
+        url: `${API_URL}/categories`,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            dispatch(
+              CategoryActions.setCategories({
+                list: response.data,
+              })
+            );
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+  }, [isFocused]);
   return (
     <View
       style={{
@@ -45,23 +75,26 @@ export default function QuickSearch() {
             />
           </Text>
         </TouchableOpacity>
-        {categories.map((category, index) => (
-          <View
+        {categoryList.map((category, index) => (
+          <TouchableOpacity
+            onPress={() => setActiveCategory(category.name)}
             key={index}
             style={
-              category.active
+              activeCategory === category.name
                 ? styles.category_selected
                 : styles.category_normal
             }
           >
             <Text
               style={
-                category.active ? styles.text_selected : styles.text_normal
+                activeCategory === category.name
+                  ? styles.text_selected
+                  : styles.text_normal
               }
             >
               {category.name}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
       <Modal
