@@ -33,7 +33,8 @@ export default function LoginScreen({ navigation }) {
   const [sound, setSound] = useState(null);
   const [sndIcon, setSndIcon] = useState(true);
   const [modalVisible, setmodalVisible] = useState(false);
-  const user = useSelector((state) => state.user.userData);
+  const [activeModal, setActiveModal] = useState("password");
+  const [loginError, setLoginError] = useState("");
   const dispatch = useDispatch();
 
   async function playSound() {
@@ -57,6 +58,13 @@ export default function LoginScreen({ navigation }) {
     navigation.navigate("BottomTabs");
   };
 
+  const handleLoginError = () => {
+    setActiveModal("error");
+    setLoginError("The credentials entered are invalid!");
+    setmodalVisible(true);
+    setIndicatorVisibility(false);
+  };
+
   const toggleMusic = async () => {
     console.log("toggling music");
     sndIcon ? sound.pauseAsync() : sound.replayAsync();
@@ -74,6 +82,7 @@ export default function LoginScreen({ navigation }) {
       setSndIcon(true);
       playSound();
       setIndicatorVisibility(false);
+      dispatch(UserActions.clearUserData());
     }
   }, [isFocused]);
 
@@ -130,17 +139,21 @@ export default function LoginScreen({ navigation }) {
                           UserActions.setUserData({
                             name: response.data.user.name,
                             email: response.data.user.email,
+                            about: response.data.user.about,
                             location: response.data.user.location,
                             joinDate: response.data.joinDate,
                             wishlist: response.data.wishlist,
                             games: response.data.games,
-                            token: response.data.token,
                           })
                         );
+                        dispatch(UserActions.setToken(response.data.token));
                         handleNavigation();
                       }
                     })
-                    .catch((error) => console.log(error));
+                    .catch((error) => {
+                      handleLoginError();
+                      console.log(error);
+                    });
                 }}
               >
                 {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -187,7 +200,10 @@ export default function LoginScreen({ navigation }) {
 
                     <TouchableOpacity
                       style={{ alignSelf: "flex-end" }}
-                      onPress={() => setmodalVisible(true)}
+                      onPress={() => {
+                        setActiveModal("password");
+                        setmodalVisible(true);
+                      }}
                     >
                       <Text
                         style={{
@@ -302,53 +318,116 @@ export default function LoginScreen({ navigation }) {
                     justifyContent: "center",
                   }}
                 >
-                  <View
-                    style={{
-                      width: "90%",
-                      height: "10%",
-                      borderWidth: 1,
-                      borderRadius: 10,
-                      borderColor: colors.yellow_a,
-                      backgroundColor: colors.black,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: colors.yellow,
-                        fontWeight: "bold",
-                        fontSize: 18,
-                      }}
-                    >
-                      Yeah, you're screwed!
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.yellow,
-                        fontWeight: "300",
-                        fontSize: 12,
-                      }}
-                    >
-                      But don't worry, we are still working on that feature!
-                    </Text>
+                  {activeModal === "password" && (
                     <View
                       style={{
-                        position: "absolute",
-                        top: -25,
-                        right: 15,
-                        backgroundColor: colors.black,
+                        width: "90%",
+                        height: "10%",
                         borderWidth: 1,
-                        borderRadius: 7,
-                        borderBottomWidth: 0,
+                        borderRadius: 10,
                         borderColor: colors.yellow_a,
+                        backgroundColor: colors.black,
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <TouchableOpacity onPress={() => setmodalVisible(false)}>
-                        <Entypo name="cross" size={30} color={colors.yellow} />
-                      </TouchableOpacity>
+                      <Text
+                        style={{
+                          color: colors.yellow,
+                          fontWeight: "bold",
+                          fontSize: 18,
+                        }}
+                      >
+                        Yeah, you're screwed!
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.yellow,
+                          fontWeight: "300",
+                          fontSize: 12,
+                        }}
+                      >
+                        But don't worry, we are still working on that feature!
+                      </Text>
+                      <View
+                        style={{
+                          position: "absolute",
+                          top: -25,
+                          right: 15,
+                          backgroundColor: colors.black,
+                          borderWidth: 1,
+                          borderRadius: 7,
+                          borderBottomWidth: 0,
+                          borderColor: colors.yellow_a,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setmodalVisible(false)}
+                        >
+                          <Entypo
+                            name="cross"
+                            size={30}
+                            color={colors.yellow}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
+                  )}
+                  {activeModal === "error" && (
+                    <View
+                      style={{
+                        width: "90%",
+                        height: "10%",
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        borderColor: colors.yellow_a,
+                        backgroundColor: colors.black,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: colors.yellow,
+                          fontWeight: "bold",
+                          fontSize: 18,
+                        }}
+                      >
+                        Something went wrong!
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.yellow,
+                          fontWeight: "300",
+                          fontSize: 12,
+                        }}
+                      >
+                        {loginError}
+                      </Text>
+                      <View
+                        style={{
+                          position: "absolute",
+                          top: -25,
+                          right: 15,
+                          backgroundColor: colors.black,
+                          borderWidth: 1,
+                          borderRadius: 7,
+                          borderBottomWidth: 0,
+                          borderColor: colors.yellow_a,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setmodalVisible(false)}
+                        >
+                          <Entypo
+                            name="cross"
+                            size={30}
+                            color={colors.yellow}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
                 </View>
               </Modal>
             </View>

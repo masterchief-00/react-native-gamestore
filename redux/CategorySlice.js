@@ -15,6 +15,18 @@ const CategorySlice = createSlice({
         }
       }
     },
+    addCategory(state, action) {
+      let newCategory = action.payload;
+      let existingItem = state.categories.find(
+        (item) => item.name === newCategory.name
+      );
+      if (!existingItem) {
+        state.categories.push(newCategory);
+      }
+    },
+    clearCategories(state, action) {
+      state.categories = [{ name: "explore" }];
+    },
   },
 });
 

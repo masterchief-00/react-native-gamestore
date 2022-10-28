@@ -14,7 +14,8 @@ import { API_URL } from "@env";
 import { useSelector } from "react-redux";
 
 export default function User() {
-  const token = useSelector((state) => state.user.userData.token);
+  const token = useSelector((state) => state.user.token);
+  const userName = useSelector((state) => state.user.userData.name);
   const navigation = useNavigation();
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
 
@@ -30,7 +31,10 @@ export default function User() {
           navigation.navigate("Login");
         }
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        setIndicatorVisibility(false);
+        console.log(error);
+      });
   };
   return (
     <View
@@ -41,11 +45,28 @@ export default function User() {
         marginBottom: 20,
       }}
     >
-      <Image
-        source={require("../assets/images/avatar.jpg")}
-        style={{ borderRadius: 50, height: 40, width: 40 }}
-        resizeMode="contain"
-      />
+      <TouchableOpacity
+        onPress={() => navigation.navigate("User")}
+        activeOpacity={0.8}
+        style={{ flexDirection: "row", alignItems: "center" }}
+      >
+        <Image
+          source={require("../assets/images/avatar.jpg")}
+          style={{ borderRadius: 50, height: 40, width: 40 }}
+          resizeMode="contain"
+        />
+        <Text
+          style={{
+            color: colors.white,
+            fontSize: 18,
+            fontWeight: "bold",
+            marginLeft: 10,
+          }}
+        >
+          {userName}
+        </Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         disabled={indicatorVisible}
         style={{ flexDirection: "row-reverse", alignItems: "center" }}

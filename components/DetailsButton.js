@@ -3,11 +3,20 @@ import { Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { colors } from "../data/Colours";
 
-export default function DetailsButton({ text, bg, color, width,onPress,mt=30 }) {
+export default function DetailsButton({
+  text,
+  bg,
+  color,
+  width,
+  onPress,
+  mt = 30,
+  disabled = false,
+}) {
   return (
     <TouchableOpacity
+      disabled={disabled}
       style={{
-        backgroundColor: bg,
+        backgroundColor: disabled ? colors.primary_a : bg,
         justifyContent: "center",
         alignItems: "center",
         padding: 5,

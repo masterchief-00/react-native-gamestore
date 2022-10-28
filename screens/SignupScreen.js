@@ -6,6 +6,7 @@ import {
   Pressable,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { globalStyles } from "../data/GlobalStyles";
@@ -16,7 +17,11 @@ import { Formik } from "formik";
 import CustomButton from "../components/CustomButton";
 import { useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Entypo } from "@expo/vector-icons";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { UserActions } from "../redux/UserSlice";
+import { API_URL } from "@env";
 
 const bgImage = {
   uri: "https://images.wallpapersden.com/image/download/call-of-duty-warzone-hd-gaming_bGxmbmeUmZqaraWkpJRmaWllrWdqa2U.jpg",
@@ -26,6 +31,11 @@ export default function SignupScreen({ navigation }) {
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
   const [sound, setSound] = useState(null);
   const [sndIcon, setSndIcon] = useState(true);
+  const dispatch = useDispatch();
+
+  const [modalVisible, setmodalVisible] = useState(false);
+  const [activeModal, setActiveModal] = useState("password");
+  const [singupError, setsignupError] = useState("");
 
   async function playSound() {
     if (sound === null) {
@@ -43,9 +53,15 @@ export default function SignupScreen({ navigation }) {
 
   const isFocused = useIsFocused();
   const handleNavigation = () => {
-    setIndicatorVisibility(true);
     stopMusic();
     navigation.navigate("BottomTabs");
+  };
+
+  const handleSignupError = () => {
+    setActiveModal("error");
+    setsignupError("The credentials entered are invalid!");
+    setmodalVisible(true);
+    setIndicatorVisibility(false);
   };
 
   const toggleMusic = async () => {
@@ -65,6 +81,7 @@ export default function SignupScreen({ navigation }) {
       setSndIcon(true);
       playSound();
       setIndicatorVisibility(false);
+      dispatch(UserActions.clearUserData());
     }
   }, [isFocused]);
   return (
@@ -99,10 +116,42 @@ export default function SignupScreen({ navigation }) {
             </Text>
             <Formik
               initialValues={{
-                email: "",
                 password: "",
+                email: "",
+                location: "",
+                name: "",
               }}
-              onSubmit={(values) => console.log(values)}
+              onSubmit={(values) => {
+                setIndicatorVisibility(true);
+                axios({
+                  method: "post",
+                  url: `${API_URL}/users/signup`,
+                  data: {
+                    email: values.email,
+                    password: values.password,
+                    name: values.name,
+                    location: values.location,
+                  },
+                })
+                  .then((response) => {
+                    if (response.status === 200) {
+                      dispatch(
+                        UserActions.setUserData({
+                          name: response.data.user.name,
+                          email: response.data.user.email,
+                          about: response.data.user.about,
+                          location: response.data.user.location,
+                          joinDate: response.data.joinDate,
+                          wishlist: parseInt(response.data.wishlist),
+                          games: parseInt(response.data.games),
+                        }),
+                        UserActions.setToken(response.data.token)
+                      );
+                      handleNavigation();
+                    }
+                  })
+                  .catch((error) => handleSignupError());
+              }}
             >
               {({ handleChange, handleBlur, handleSubmit, values }) => (
                 <View style={{ alignItems: "center", marginTop: 20 }}>
@@ -169,6 +218,7 @@ export default function SignupScreen({ navigation }) {
                     onBlur={handleBlur("password")}
                     value={values.password}
                     placeholderTextColor={colors.white}
+                    secureTextEntry={true}
                     style={{
                       color: colors.white,
                       padding: 10,
@@ -190,7 +240,7 @@ export default function SignupScreen({ navigation }) {
                     text="Sign up"
                     bdcolor="transparent"
                     mt={20}
-                    onPress={handleNavigation}
+                    onPress={handleSubmit}
                   />
                 </View>
               )}
@@ -198,7 +248,8 @@ export default function SignupScreen({ navigation }) {
 
             <View
               style={{
-                marginTop: 40,
+                position: "absolute",
+                bottom: -80,
                 alignSelf: "center",
                 alignItems: "center",
               }}
@@ -257,7 +308,7 @@ export default function SignupScreen({ navigation }) {
               }}
               style={{
                 position: "absolute",
-                bottom: 100,
+                bottom: 27,
                 right: 60,
                 backgroundColor: colors.white_a,
                 borderRadius: 15,
@@ -270,6 +321,119 @@ export default function SignupScreen({ navigation }) {
                 color={colors.white}
               />
             </TouchableOpacity>
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={modalVisible}
+            >
+              <View
+                style={{
+                  backgroundColor: colors.black_a,
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {activeModal === "password" && (
+                  <View
+                    style={{
+                      width: "90%",
+                      height: "10%",
+                      borderWidth: 1,
+                      borderRadius: 10,
+                      borderColor: colors.yellow_a,
+                      backgroundColor: colors.black,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.yellow,
+                        fontWeight: "bold",
+                        fontSize: 18,
+                      }}
+                    >
+                      Yeah, you're screwed!
+                    </Text>
+                    <Text
+                      style={{
+                        color: colors.yellow,
+                        fontWeight: "300",
+                        fontSize: 12,
+                      }}
+                    >
+                      But don't worry, we are still working on that feature!
+                    </Text>
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: -25,
+                        right: 15,
+                        backgroundColor: colors.black,
+                        borderWidth: 1,
+                        borderRadius: 7,
+                        borderBottomWidth: 0,
+                        borderColor: colors.yellow_a,
+                      }}
+                    >
+                      <TouchableOpacity onPress={() => setmodalVisible(false)}>
+                        <Entypo name="cross" size={30} color={colors.yellow} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+                {activeModal === "error" && (
+                  <View
+                    style={{
+                      width: "90%",
+                      height: "10%",
+                      borderWidth: 1,
+                      borderRadius: 10,
+                      borderColor: colors.yellow_a,
+                      backgroundColor: colors.black,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.yellow,
+                        fontWeight: "bold",
+                        fontSize: 18,
+                      }}
+                    >
+                      Something went wrong!
+                    </Text>
+                    <Text
+                      style={{
+                        color: colors.yellow,
+                        fontWeight: "300",
+                        fontSize: 12,
+                      }}
+                    >
+                      {singupError}
+                    </Text>
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: -25,
+                        right: 15,
+                        backgroundColor: colors.black,
+                        borderWidth: 1,
+                        borderRadius: 7,
+                        borderBottomWidth: 0,
+                        borderColor: colors.yellow_a,
+                      }}
+                    >
+                      <TouchableOpacity onPress={() => setmodalVisible(false)}>
+                        <Entypo name="cross" size={30} color={colors.yellow} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </Modal>
           </View>
         </LinearGradient>
       </ImageBackground>

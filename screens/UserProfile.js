@@ -6,24 +6,23 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Button,
+  Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../data/Colours";
-import {
-  Feather,
-  Entypo,
-  MaterialIcons,
-  Ionicons,
-} from "@expo/vector-icons";
+import { Feather, Entypo, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
 import DetailsButton from "../components/DetailsButton";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
 import { useNavigation } from "@react-navigation/native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { API_URL } from "@env";
+import { UserActions } from "../redux/UserSlice";
 
 const bgImage = {
   uri: "https://i.pinimg.com/originals/fb/0d/4e/fb0d4e4bebc7b221aa3c03091766d4e2.jpg",
@@ -34,8 +33,12 @@ export default function UserProfile() {
   const [selectedEdit, setSelectedEdit] = useState({});
   const [image, setImage] = useState(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
 
   const userData = useSelector((state) => state.user.userData);
+  const token = useSelector((state) => state.user.token);
 
   let pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -108,7 +111,9 @@ export default function UserProfile() {
                 </TouchableOpacity>
               </View>
               <View>
-                <View style={{ flexDirection: "row",justifyContent:'center' }}>
+                <View
+                  style={{ flexDirection: "row", justifyContent: "center" }}
+                >
                   <Text
                     style={{
                       fontWeight: "bold",
@@ -123,7 +128,7 @@ export default function UserProfile() {
                   </Text>
                   <TouchableOpacity
                     style={{
-                      marginTop:8,
+                      marginTop: 8,
                       zIndex: 3,
                     }}
                     onPress={() => {
@@ -226,7 +231,7 @@ export default function UserProfile() {
                     // opacity: 0.9,
                   }}
                 >
-                  <Ionicons 
+                  <Ionicons
                     name="game-controller"
                     size={15}
                     color={colors.primary_variant_x}
@@ -311,10 +316,9 @@ export default function UserProfile() {
                   borderBottomLeftRadius: 15,
                 }}
               >
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe
-                a, atque voluptates reiciendis impedit ea id cum tempore, omnis
-                similique sunt, blanditiis deleniti asperiores eaque! Aliquid
-                sapiente expedita autem ipsam?
+                {userData.about !== ""
+                  ? userData.about
+                  : "Write something about yourself, currently nothing is set"}
               </Text>
               <TouchableOpacity
                 style={{
@@ -437,10 +441,40 @@ export default function UserProfile() {
                         <Image
                           source={{ uri: image }}
                           resizeMode="contain"
-                          style={{ height: 100, width: 100, borderRadius: 5 }}
+                          style={{
+                            height: 100,
+                            width: 100,
+                            borderRadius: 5,
+                          }}
                         />
                       </View>
                     )}
+                    <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                      {indicatorVisible && (
+                        <ActivityIndicator
+                          size="small"
+                          color={colors.primary_variant_x}
+                          style={{ marginTop: 10 }}
+                        />
+                      )}
+                      <DetailsButton
+                        text="Submit"
+                        bg={colors.primary_variant_x}
+                        color={colors.black}
+                        width={100}
+                        mt={10}
+                        onPress={() => setModalVisible(false)}
+                        disabled={indicatorVisible}
+                      />
+                      <DetailsButton
+                        text="Close"
+                        bg={colors.yellow}
+                        color={colors.black}
+                        width={100}
+                        mt={10}
+                        onPress={() => setModalVisible(false)}
+                      />
+                    </View>
                   </View>
                 )}
                 {selectedEdit === "name" && (
@@ -453,18 +487,60 @@ export default function UserProfile() {
                         textTransform: "uppercase",
                       }}
                     >
-                      Update user name
+                      Update personal details
                     </Text>
 
                     <Formik
                       initialValues={{
-                        name: "",
+                        name: userData.name,
+                        location: userData.location,
                       }}
-                      onSubmit={(values) => console.log(values)}
+                      onSubmit={(values) => {
+                        setIndicatorVisibility(true);
+                        axios({
+                          method: "put",
+                          url: `${API_URL}/users/${userData.email}`,
+                          data: {
+                            name: values.name,
+                            location: values.location,
+                            about: userData.about,
+                          },
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        })
+                          .then((response) => {
+                            if (response.status === 200) {
+                              console.log(response.data);
+                              dispatch(
+                                UserActions.setUserData({
+                                  name: response.data.user.name,
+                                  email: response.data.user.email,
+                                  about: response.data.user.about,
+                                  location: response.data.user.location,
+                                  joinDate: response.data.joinDate,
+                                  wishlist: response.data.wishlist,
+                                  games: response.data.games,
+                                })
+                              );
+                              dispatch(
+                                UserActions.setToken(response.data.token)
+                              );
+                              setModalVisible(false);
+                              setIndicatorVisibility(false);
+                            }
+                          })
+                          .catch((error) => {
+                            setIndicatorVisibility(false);
+                            setErrorModal(true);
+                            console.log(error);
+                            Keyboard.dismiss();
+                          });
+                      }}
                     >
                       {({ handleChange, handleBlur, handleSubmit, values }) => (
                         <View style={{ alignItems: "center", marginTop: 20 }}>
-                          {/* ------------------TITLE--------------- */}
+                          {/* ------------------NAME & LOCATION--------------- */}
                           <TextInput
                             placeholder="New user name"
                             onChangeText={handleChange("name")}
@@ -479,9 +555,56 @@ export default function UserProfile() {
                               width: 250,
                               height: 40,
                               borderBottomWidth: 1.5,
+                              marginTop: 8,
                               borderColor: colors.primary_variant_x,
                             }}
                           />
+                          <TextInput
+                            placeholder="New location"
+                            onChangeText={handleChange("location")}
+                            onBlur={handleBlur("location")}
+                            value={values.location}
+                            placeholderTextColor={colors.primary}
+                            style={{
+                              color: colors.primary_variant_x,
+                              textAlign: "center",
+                              backgroundColor: colors.bg_variant,
+                              fontSize: 15,
+                              width: 250,
+                              height: 40,
+                              borderBottomWidth: 1.5,
+                              marginTop: 8,
+                              borderColor: colors.primary_variant_x,
+                            }}
+                          />
+                          <View
+                            style={{ flexDirection: "row", marginVertical: 10 }}
+                          >
+                            {indicatorVisible && (
+                              <ActivityIndicator
+                                size="small"
+                                color={colors.primary_variant_x}
+                                style={{ marginTop: 10 }}
+                              />
+                            )}
+                            <DetailsButton
+                              text="Submit"
+                              bg={colors.primary_variant_x}
+                              color={colors.black}
+                              width={100}
+                              mt={10}
+                              onPress={handleSubmit}
+                              disabled={indicatorVisible}
+                            />
+                            <DetailsButton
+                              text="Close"
+                              bg={colors.yellow}
+                              color={colors.black}
+                              width={100}
+                              mt={10}
+                              onPress={() => setModalVisible(false)}
+                            />
+                          </View>
                         </View>
                       )}
                     </Formik>
@@ -502,16 +625,57 @@ export default function UserProfile() {
 
                     <Formik
                       initialValues={{
-                        name: "",
+                        about: "",
                       }}
-                      onSubmit={(values) => console.log(values)}
+                      onSubmit={(values) => {
+                        setIndicatorVisibility(true);
+                        axios({
+                          method: "put",
+                          url: `${API_URL}/users/${userData.email}`,
+                          data: {
+                            about: values.about,
+                            name: userData.name,
+                            location: userData.location,
+                          },
+                          headers: { Authorization: `Bearer ${token}` },
+                        })
+                          .then((response) => {
+                            if (response.status === 200) {
+                              dispatch(
+                                UserActions.setUserData({
+                                  name: response.data.user.name,
+                                  about: response.data.user.about,
+                                  email: response.data.user.email,
+                                  location: response.data.user.location,
+                                  joinDate: response.data.joinDate,
+                                  wishlist: response.data.wishlist,
+                                  games: response.data.games,
+                                })
+                              );
+                              dispatch(
+                                UserActions.setToken(response.data.token)
+                              );
+                              setIndicatorVisibility(false);
+                              setModalVisible(false);
+                            }
+                          })
+                          .catch((error) => {
+                            setIndicatorVisibility(false);
+                            setErrorModal(true);
+                            console.log(error);
+                            Keyboard.dismiss();
+                          });
+                      }}
                     >
                       {({ handleChange, handleBlur, handleSubmit, values }) => (
                         <View style={{ alignItems: "center", marginTop: 20 }}>
-                          {/* ------------------TITLE--------------- */}
+                          {/* ------------------ABOUT--------------- */}
                           <TextInput
                             placeholder="Your new about"
                             placeholderTextColor={colors.white_a}
+                            onChangeText={handleChange("about")}
+                            onBlur={handleBlur("about")}
+                            value={values.about}
                             multiline
                             style={{
                               color: colors.primary_variant_x,
@@ -525,30 +689,91 @@ export default function UserProfile() {
                               borderColor: colors.primary_variant_x,
                             }}
                           />
+                          <View
+                            style={{ flexDirection: "row", marginVertical: 10 }}
+                          >
+                            {indicatorVisible && (
+                              <ActivityIndicator
+                                size="small"
+                                color={colors.primary_variant_x}
+                                style={{ marginTop: 10 }}
+                              />
+                            )}
+                            <DetailsButton
+                              text="Submit"
+                              bg={colors.primary_variant_x}
+                              color={colors.black}
+                              width={100}
+                              mt={10}
+                              onPress={handleSubmit}
+                              disabled={indicatorVisible}
+                            />
+                            <DetailsButton
+                              text="Close"
+                              bg={colors.yellow}
+                              color={colors.black}
+                              width={100}
+                              mt={10}
+                              onPress={() => setModalVisible(false)}
+                            />
+                          </View>
                         </View>
                       )}
                     </Formik>
                   </View>
                 )}
-                <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                  <DetailsButton
-                    text="Submit"
-                    bg={colors.primary_variant_x}
-                    color={colors.black}
-                    width={100}
-                    mt={10}
-                    onPress={() => setModalVisible(false)}
-                  />
-                  <DetailsButton
-                    text="Close"
-                    bg={colors.yellow}
-                    color={colors.black}
-                    width={100}
-                    mt={10}
-                    onPress={() => setModalVisible(false)}
-                  />
-                </View>
               </View>
+              {errorModal && (
+                <View
+                  style={{
+                    position: "absolute",
+                    width: "90%",
+                    top: -300,
+                    padding: 10,
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    borderColor: colors.yellow_a,
+                    backgroundColor: colors.black,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: colors.yellow,
+                      fontWeight: "bold",
+                      fontSize: 18,
+                    }}
+                  >
+                    Something went wrong!
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.yellow,
+                      fontWeight: "300",
+                      fontSize: 12,
+                    }}
+                  >
+                    Make sure the information is valid and try again
+                  </Text>
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -25,
+                      right: 15,
+                      backgroundColor: colors.black,
+                      borderWidth: 1,
+                      borderRadius: 7,
+                      borderBottomWidth: 0,
+                      borderColor: colors.yellow_a,
+                    }}
+                  >
+                    <TouchableOpacity onPress={() => setErrorModal(false)}>
+                      <Entypo name="cross" size={30} color={colors.yellow} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
         </Modal>

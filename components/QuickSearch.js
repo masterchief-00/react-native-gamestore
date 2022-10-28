@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { colors } from "../data/Colours";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import DetailsButton from "./DetailsButton";
 import { Formik } from "formik";
 import axios from "axios";
@@ -18,27 +19,19 @@ import { useIsFocused } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { CategoryActions } from "../redux/CategorySlice";
 
-const categories = [
-  { name: "Explore", active: true },
-  { name: "Arcade", active: false },
-  { name: "Adventure", active: false },
-  { name: "Action", active: false },
-  { name: "Open world", active: false },
-  { name: "Horror", active: false },
-  { name: "Indie", active: false },
-];
-
 export default function QuickSearch() {
   const [modalVisible, setModalVisible] = useState(false);
-  const userData = useSelector((state) => state.user.userData);
-  const token = userData.token;
+  const token = useSelector((state) => state.user.token);
   const isFocused = useIsFocused();
   const categoryList = useSelector((state) => state.category.categories);
   const dispatch = useDispatch();
   const [activeCategory, setActiveCategory] = useState("explore");
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
+      dispatch(CategoryActions.clearCategories());
       axios({
         method: "get",
         url: `${API_URL}/categories`,
@@ -77,6 +70,7 @@ export default function QuickSearch() {
         </TouchableOpacity>
         {categoryList.map((category, index) => (
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() => setActiveCategory(category.name)}
             key={index}
             style={
@@ -141,16 +135,42 @@ export default function QuickSearch() {
               initialValues={{
                 category: "",
               }}
-              onSubmit={(values) => console.log(values)}
+              onSubmit={(values) => {
+                setIndicatorVisibility(true);
+                axios({
+                  method: "post",
+                  url: `${API_URL}/categories`,
+                  data: {
+                    name: values.category,
+                  },
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+                  .then((response) => {
+                    if (response.status === 200) {
+                      dispatch(
+                        CategoryActions.setCategories({
+                          list: response.data.categories,
+                        })
+                      );
+                      setIndicatorVisibility(false);
+                      setModalVisible(false);
+                    }
+                  })
+                  .catch((error) => {
+                    setErrorModal(true);
+                    setIndicatorVisibility(false);
+                    console.log(error);
+                  });
+              }}
             >
               {({ handleChange, handleBlur, handleSubmit, values }) => (
                 <View style={{ alignItems: "center", marginTop: 20 }}>
                   {/* ------------------TITLE--------------- */}
                   <TextInput
                     placeholder="New Category"
-                    onChangeText={handleChange("title")}
-                    onBlur={handleBlur("title")}
-                    value={values.title}
+                    onChangeText={handleChange("category")}
+                    onBlur={handleBlur("category")}
+                    value={values.category}
                     placeholderTextColor={colors.primary}
                     style={{
                       color: colors.primary_variant_x,
@@ -163,14 +183,29 @@ export default function QuickSearch() {
                       borderColor: colors.primary_variant_x,
                     }}
                   />
-                  <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginVertical: 10,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {indicatorVisible && (
+                      <ActivityIndicator
+                        size="small"
+                        color={colors.primary_variant_x}
+                        style={{ marginTop: 10 }}
+                      />
+                    )}
                     <DetailsButton
                       text="Submit"
                       bg={colors.primary_variant_x}
                       color={colors.black}
                       width={100}
                       mt={10}
-                      onPress={() => setModalVisible(false)}
+                      onPress={handleSubmit}
+                      disabled={indicatorVisible}
                     />
                     <DetailsButton
                       text="Close"
@@ -194,6 +229,57 @@ export default function QuickSearch() {
               }}
             />
           </View>
+          {errorModal && (
+            <View
+              style={{
+                position: "absolute",
+                width: "90%",
+                top: 400,
+                padding: 10,
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: colors.yellow_a,
+                backgroundColor: colors.black,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.yellow,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                }}
+              >
+                Something went wrong!
+              </Text>
+              <Text
+                style={{
+                  color: colors.yellow,
+                  fontWeight: "300",
+                  fontSize: 12,
+                }}
+              >
+                Make sure the information is valid and try again
+              </Text>
+              <View
+                style={{
+                  position: "absolute",
+                  top: -25,
+                  right: 15,
+                  backgroundColor: colors.black,
+                  borderWidth: 1,
+                  borderRadius: 7,
+                  borderBottomWidth: 0,
+                  borderColor: colors.yellow_a,
+                }}
+              >
+                <TouchableOpacity onPress={() => setErrorModal(false)}>
+                  <Entypo name="cross" size={30} color={colors.yellow} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </Modal>
     </View>
