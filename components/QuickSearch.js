@@ -135,9 +135,9 @@ export default function QuickSearch() {
               initialValues={{
                 category: "",
               }}
-              onSubmit={(values) => {
+              onSubmit={async (values) => {
                 setIndicatorVisibility(true);
-                axios({
+                await axios({
                   method: "post",
                   url: `${API_URL}/categories`,
                   data: {

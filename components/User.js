@@ -19,9 +19,9 @@ export default function User() {
   const navigation = useNavigation();
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIndicatorVisibility(true);
-    axios({
+    await axios({
       method: "post",
       url: `${API_URL}/users/logout`,
       headers: { Authorization: `Bearer ${token}` },

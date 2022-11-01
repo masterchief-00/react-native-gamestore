@@ -6,8 +6,9 @@ import {
   Modal,
   Image,
   ScrollView,
+  StyleSheet,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
 import { Formik } from "formik";
@@ -15,23 +16,18 @@ import DropDownPicker from "react-native-dropdown-picker";
 import DetailsButton from "./DetailsButton";
 import NumericInput from "react-native-numeric-input";
 import * as ImagePicker from "expo-image-picker";
+import { useSelector } from "react-redux";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function AddGame() {
   const [modalVisible, setModalVisible] = useState(false);
   const [rating, setRating] = useState(1);
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: "Open world", value: "open-world" },
-    { label: "Action", value: "action" },
-    { label: "Adventure", value: "adventure" },
-    { label: "Horror", value: "horror" },
-    { label: "Racing", value: "racing" },
-  ]);
+  const [activeCategory, setActiveCategory] = useState({});
 
   const [imageWide, setImageWide] = useState(null);
   const [imageTall, setImageTall] = useState(null);
 
+  const categories = useSelector((state) => state.category.categories);
   let pickImage = async (type) => {
     let result = {};
     if (type === "wide") {
@@ -55,6 +51,10 @@ export default function AddGame() {
     console.log(result.uri);
   };
 
+  const handleNewGame = () => {
+    setModalVisible(true);
+  };
+
   return (
     <View>
       <TouchableOpacity
@@ -70,7 +70,7 @@ export default function AddGame() {
           shadowRadius: 15,
           elevation: 3,
         }}
-        onPress={() => setModalVisible(true)}
+        onPress={() => handleNewGame()}
       >
         <Ionicons
           name="ios-game-controller"
@@ -149,6 +149,9 @@ export default function AddGame() {
                   downloads: 0,
                   category: "",
                   rating: 0,
+                  description: "",
+                  image_w: imageWide,
+                  image_t: imageTall,
                 }}
                 onSubmit={(values) => console.log(values)}
               >
@@ -192,49 +195,6 @@ export default function AddGame() {
                         marginTop: 10,
                       }}
                     />
-                    {/* ------------------CATEBORY--------------- */}
-                    <DropDownPicker
-                      open={open}
-                      value={value}
-                      items={items}
-                      setOpen={setOpen}
-                      setValue={setValue}
-                      setItems={setItems}
-                      dropDownDirection="TOP"
-                      theme="DARK"
-                      itemSeparator={true}
-                      placeholder="Game category"
-                      containerStyle={{
-                        borderBottomWidth: 1,
-                        borderColor: colors.primary_variant_x,
-                      }}
-                      selectedItemContainerStyle={{
-                        backgroundColor: colors.bg,
-                      }}
-                      selectedItemLabelStyle={{
-                        color: colors.primary_variant_x,
-                        fontWeight: "bold",
-                      }}
-                      itemSeparatorStyle={{
-                        backgroundColor: colors.primary_a,
-                      }}
-                      dropDownContainerStyle={{
-                        backgroundColor: colors.bg,
-                        borderBottomWidth: 0,
-                        borderWidth: 0.9,
-                        borderColor: colors.primary_x,
-                      }}
-                      textStyle={{
-                        color: colors.primary,
-                      }}
-                      style={{
-                        width: 250,
-                        backgroundColor: colors.bg_variant,
-                        marginTop: 10,
-                        borderRadius: 0,
-                        borderWidth: 0,
-                      }}
-                    />
                     <ScrollView
                       contentContainerStyle={{ alignItems: "center" }}
                       showsVerticalScrollIndicator={false}
@@ -248,7 +208,7 @@ export default function AddGame() {
                         style={{
                           color: colors.primary_variant_x,
                           fontSize: 15,
-                          marginVertical: 15,
+                          marginTop: 10,
                           padding: 10,
                           borderWidth: 0.4,
                           width: 250,
@@ -259,6 +219,38 @@ export default function AddGame() {
                           borderColor: colors.primary_variant_x,
                         }}
                       />
+                      {/* ------------------CATEBORY--------------- */}
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          width: 265,
+                          flexWrap: "wrap",
+                          marginTop: 10,
+                        }}
+                      >
+                        {categories.map((category, index) => (
+                          <TouchableOpacity
+                            activeOpacity={0.8}
+                            onPress={() => setActiveCategory(category.id)}
+                            key={index}
+                            style={
+                              activeCategory === category.id
+                                ? styles.category_selected
+                                : styles.category_normal
+                            }
+                          >
+                            <Text
+                              style={
+                                activeCategory === category.id
+                                  ? styles.text_selected
+                                  : styles.text_normal
+                              }
+                            >
+                              {category.name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
                       {/* ------------------RATING--------------- */}
                       <NumericInput
                         value={rating}
@@ -410,3 +402,39 @@ export default function AddGame() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  category_normal: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.primary_a,
+    padding: 3,
+    width: 80,
+    borderRadius: 8,
+    marginHorizontal: 3,
+    marginTop: 8,
+    marginRight: 5,
+  },
+  category_selected: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 3,
+    width: 80,
+    borderRadius: 20,
+    borderBottomColor: colors.yellow,
+    borderBottomWidth: 2,
+    backgroundColor: colors.primary_a,
+    marginHorizontal: 3,
+    marginTop: 8,
+    marginRight: 5,
+  },
+  text_selected: {
+    color: colors.yellow,
+    fontSize: 13,
+  },
+  text_normal: {
+    color: colors.primary,
+    fontSize: 13,
+    opacity: 0.6,
+  },
+});
