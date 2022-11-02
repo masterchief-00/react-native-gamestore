@@ -153,7 +153,7 @@ export default function LoginScreen({ navigation }) {
                     })
                     .catch((error) => {
                       handleLoginError();
-                      console.log(error);
+                      console.log(error.response.data);
                     });
                 }}
               >

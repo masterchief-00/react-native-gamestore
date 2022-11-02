@@ -19,6 +19,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { API_URL } from "@env";
+import * as FileSystem from "expo-file-system";
+import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 
 export default function AddGame() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -30,8 +32,6 @@ export default function AddGame() {
 
   const [imageWide, setImageWide] = useState(null);
   const [imageTall, setImageTall] = useState(null);
-  const [fileWide, setFileWide] = useState(null);
-  const [fileTall, setFileTall] = useState(null);
 
   const categories = useSelector((state) => state.category.categories);
   const categoryList = categories.filter(
@@ -46,8 +46,13 @@ export default function AddGame() {
       });
       // result.
       if (!result.cancelled) {
-        setImageWide(result.uri);
-        setFileWide(result);
+        const dummyManipulationResult = await manipulateAsync(
+          result.uri,
+          [],
+          {}
+        );
+
+        setImageWide(dummyManipulationResult);
       }
     } else if (type === "tall") {
       result = await ImagePicker.launchImageLibraryAsync({
@@ -56,8 +61,13 @@ export default function AddGame() {
       });
 
       if (!result.cancelled) {
-        setImageTall(result.uri);
-        setFileTall(result);
+        const dummyManipulationResult = await manipulateAsync(
+          result.uri,
+          [],
+          {}
+        );
+
+        setImageTall(dummyManipulationResult);
       }
     }
 
@@ -163,10 +173,76 @@ export default function AddGame() {
                   rating: rating,
                   description: "",
                   category_id: activeCategory,
-                  // image_w: imageWide,
-                  // image_t: imageTall,
+                  image_wide: imageWide,
+                  image_tall: imageTall,
                 }}
-                onSubmit={(values) => {}}
+                onSubmit={async (values) => {
+                  setIndicatorVisibility(true);
+                  setErrorModal(false);
+
+                  await axios({
+                    method: "post",
+                    url: `${API_URL}/games`,
+                    data: {
+                      title: values.title,
+                      description: values.description,
+                      category_id: activeCategory,
+                      rating: rating,
+                      downloads: values.downloads,
+                      image_wide: null,
+                      image_tall: null,
+                    },
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  })
+                    .then(async (response) => {
+                      if (response.status === 200) {
+                        let game_id = response.data.game.id;
+                        console.log("uploading wide image now");
+
+                        try {
+                          const response = await FileSystem.uploadAsync(
+                            `${API_URL}/games/${game_id}`,
+                            imageWide.toString(),
+                            {
+                              fieldName: "image_wide",
+                              httpMethod: "PUT",
+                              uploadType:
+                                FileSystem.FileSystemUploadType.BINARY_CONTENT,
+                            }
+                          );
+                        } catch (error) {
+                          console.log(error);
+                        }
+                        console.log("uploading tall image now");
+
+                        try {
+                          const response = await FileSystem.uploadAsync(
+                            `${API_URL}/games/${game_id}`,
+                            imageTall.toString(),
+                            {
+                              fieldName: "image_tall",
+                              httpMethod: "PUT",
+                              uploadType:
+                                FileSystem.FileSystemUploadType.BINARY_CONTENT,
+                            }
+                          );
+                        } catch (error) {
+                          console.log(error);
+                        }
+                        console.log("uploading images should be done now");
+
+                        setIndicatorVisibility(false);
+                        setModalVisible(false);
+                      }
+                    })
+                    .catch((error) => {
+                      setErrorModal(true);
+                      setIndicatorVisibility(false);
+                      console.log(error.response.data);
+                    });
+                }}
               >
                 {({ handleChange, handleBlur, handleSubmit, values }) => (
                   <View style={{ alignItems: "center", marginTop: 20 }}>
