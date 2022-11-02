@@ -121,9 +121,10 @@ export default function SignupScreen({ navigation }) {
                 location: "",
                 name: "",
               }}
-              onSubmit={(values) => {
+              onSubmit={async (values) => {
                 setIndicatorVisibility(true);
-                axios({
+
+                await axios({
                   method: "post",
                   url: `${API_URL}/users/signup`,
                   data: {
@@ -142,11 +143,11 @@ export default function SignupScreen({ navigation }) {
                           about: response.data.user.about,
                           location: response.data.user.location,
                           joinDate: response.data.joinDate,
-                          wishlist: parseInt(response.data.wishlist),
-                          games: parseInt(response.data.games),
-                        }),
-                        UserActions.setToken(response.data.token)
+                          wishlist: response.data.wishlist,
+                          games: response.data.games,
+                        })
                       );
+                      dispatch(UserActions.setToken(response.data.token));
                       handleNavigation();
                     }
                   })

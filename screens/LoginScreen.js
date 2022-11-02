@@ -125,6 +125,7 @@ export default function LoginScreen({ navigation }) {
                 }}
                 onSubmit={async (values) => {
                   setIndicatorVisibility(true);
+                  
                   await axios({
                     method: "post",
                     url: `${API_URL}/users/login`,

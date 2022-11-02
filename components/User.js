@@ -21,6 +21,7 @@ export default function User() {
 
   const handleLogout = async () => {
     setIndicatorVisibility(true);
+    
     await axios({
       method: "post",
       url: `${API_URL}/users/logout`,
@@ -70,7 +71,7 @@ export default function User() {
       <TouchableOpacity
         disabled={indicatorVisible}
         style={{ flexDirection: "row-reverse", alignItems: "center" }}
-        onPress={() => handleLogout()}
+        onPress={handleLogout}
       >
         <Text
           style={{

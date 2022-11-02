@@ -32,6 +32,7 @@ export default function QuickSearch() {
   useEffect(() => {
     if (isFocused) {
       dispatch(CategoryActions.clearCategories());
+      
       axios({
         method: "get",
         url: `${API_URL}/categories`,
@@ -137,6 +138,7 @@ export default function QuickSearch() {
               }}
               onSubmit={async (values) => {
                 setIndicatorVisibility(true);
+
                 await axios({
                   method: "post",
                   url: `${API_URL}/categories`,
@@ -265,7 +267,7 @@ export default function QuickSearch() {
               <View
                 style={{
                   position: "absolute",
-                  top: -25,
+                  top: -10,
                   right: 15,
                   backgroundColor: colors.black,
                   borderWidth: 1,

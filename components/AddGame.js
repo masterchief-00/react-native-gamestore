@@ -7,27 +7,36 @@ import {
   Image,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
 import { Formik } from "formik";
-import DropDownPicker from "react-native-dropdown-picker";
 import DetailsButton from "./DetailsButton";
 import NumericInput from "react-native-numeric-input";
 import * as ImagePicker from "expo-image-picker";
 import { useSelector } from "react-redux";
-import { useIsFocused } from "@react-navigation/native";
+import axios from "axios";
+import { API_URL } from "@env";
 
 export default function AddGame() {
   const [modalVisible, setModalVisible] = useState(false);
   const [rating, setRating] = useState(1);
   const [activeCategory, setActiveCategory] = useState({});
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
+  const token = useSelector((state) => state.user.token);
 
   const [imageWide, setImageWide] = useState(null);
   const [imageTall, setImageTall] = useState(null);
+  const [fileWide, setFileWide] = useState(null);
+  const [fileTall, setFileTall] = useState(null);
 
   const categories = useSelector((state) => state.category.categories);
+  const categoryList = categories.filter(
+    (category) => category.name !== "explore"
+  );
   let pickImage = async (type) => {
     let result = {};
     if (type === "wide") {
@@ -35,16 +44,20 @@ export default function AddGame() {
         allowsEditing: true,
         aspect: [16, 9],
       });
+      // result.
       if (!result.cancelled) {
         setImageWide(result.uri);
+        setFileWide(result);
       }
     } else if (type === "tall") {
       result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         aspect: [9, 16],
       });
+
       if (!result.cancelled) {
         setImageTall(result.uri);
+        setFileTall(result);
       }
     }
 
@@ -147,13 +160,13 @@ export default function AddGame() {
                 initialValues={{
                   title: "",
                   downloads: 0,
-                  category: "",
-                  rating: 0,
+                  rating: rating,
                   description: "",
-                  image_w: imageWide,
-                  image_t: imageTall,
+                  category_id: activeCategory,
+                  // image_w: imageWide,
+                  // image_t: imageTall,
                 }}
-                onSubmit={(values) => console.log(values)}
+                onSubmit={(values) => {}}
               >
                 {({ handleChange, handleBlur, handleSubmit, values }) => (
                   <View style={{ alignItems: "center", marginTop: 20 }}>
@@ -202,6 +215,9 @@ export default function AddGame() {
                       {/* ------------------DESCRIPTION--------------- */}
 
                       <TextInput
+                        onChangeText={handleChange("description")}
+                        onBlur={handleBlur("description")}
+                        value={values.description}
                         placeholder="Description"
                         placeholderTextColor={colors.primary}
                         multiline
@@ -219,7 +235,7 @@ export default function AddGame() {
                           borderColor: colors.primary_variant_x,
                         }}
                       />
-                      {/* ------------------CATEBORY--------------- */}
+                      {/* ------------------CATEGORY--------------- */}
                       <View
                         style={{
                           flexDirection: "row",
@@ -228,7 +244,7 @@ export default function AddGame() {
                           marginTop: 10,
                         }}
                       >
-                        {categories.map((category, index) => (
+                        {categoryList.map((category, index) => (
                           <TouchableOpacity
                             activeOpacity={0.8}
                             onPress={() => setActiveCategory(category.id)}
@@ -260,7 +276,7 @@ export default function AddGame() {
                         step={0.5}
                         totalHeight={40}
                         valueType="real"
-                        onChange={(val) => setRating({ val })}
+                        onChange={(val) => setRating(val)}
                         textColor={colors.primary}
                         containerStyle={{
                           marginTop: 10,
@@ -371,13 +387,21 @@ export default function AddGame() {
                       <View
                         style={{ flexDirection: "row", marginVertical: 10 }}
                       >
+                        {indicatorVisible && (
+                          <ActivityIndicator
+                            size="small"
+                            color={colors.primary_variant_x}
+                            style={{ marginTop: 10 }}
+                          />
+                        )}
                         <DetailsButton
                           text="Submit"
                           bg={colors.primary_variant_x}
                           color={colors.black}
                           width={100}
                           mt={10}
-                          onPress={() => setModalVisible(false)}
+                          onPress={handleSubmit}
+                          disabled={indicatorVisible}
                         />
                         <DetailsButton
                           text="Close"
@@ -397,6 +421,57 @@ export default function AddGame() {
               </Formik>
             </View>
           </View>
+          {errorModal && (
+            <View
+              style={{
+                position: "absolute",
+                width: "90%",
+                top: 50,
+                padding: 10,
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: colors.yellow_a,
+                backgroundColor: colors.black,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: colors.yellow,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                }}
+              >
+                Something went wrong!
+              </Text>
+              <Text
+                style={{
+                  color: colors.yellow,
+                  fontWeight: "300",
+                  fontSize: 12,
+                }}
+              >
+                Make sure the information is valid and try again
+              </Text>
+              <View
+                style={{
+                  position: "absolute",
+                  top: -25,
+                  right: 15,
+                  backgroundColor: colors.black,
+                  borderWidth: 1,
+                  borderRadius: 7,
+                  borderBottomWidth: 0,
+                  borderColor: colors.yellow_a,
+                }}
+              >
+                <TouchableOpacity onPress={() => setErrorModal(false)}>
+                  <Entypo name="cross" size={30} color={colors.yellow} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </Modal>
     </View>
