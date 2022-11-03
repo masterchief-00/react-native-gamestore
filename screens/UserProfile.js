@@ -9,7 +9,7 @@ import {
   Keyboard,
   ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../data/Colours";
@@ -23,6 +23,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { API_URL } from "@env";
 import { UserActions } from "../redux/UserSlice";
+import * as FileSystem from "expo-file-system";
+import { manipulateAsync } from "expo-image-manipulator";
 
 const bgImage = {
   uri: "https://i.pinimg.com/originals/fb/0d/4e/fb0d4e4bebc7b221aa3c03091766d4e2.jpg",
@@ -40,6 +42,11 @@ export default function UserProfile() {
   const userData = useSelector((state) => state.user.userData);
   const token = useSelector((state) => state.user.token);
 
+  const avatar =
+    userData.avatar !== null
+      ? { uri: userData.image }
+      : require("../assets/images/avatar.jpg");
+
   let pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
@@ -49,10 +56,42 @@ export default function UserProfile() {
     console.log(result.uri);
 
     if (!result.cancelled) {
-      setImage(result.uri);
+      const dummyManipulationResult = await manipulateAsync(result.uri);
+
+      setImage(dummyManipulationResult.uri);
     }
   };
 
+  const handleProfileImage = async () => {
+    setIndicatorVisibility(true);
+    setErrorModal(false);
+
+    console.log("uploading avatar now");
+
+    await FileSystem.uploadAsync(
+      `${API_URL}/users/avatar/${userData.email}?_method=PUT`,
+      image,
+      {
+        fieldName: "image",
+        httpMethod: "POST",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((response) => {
+        setIndicatorVisibility(false);
+        setModalVisible(false);
+        console.log(response);
+      })
+      .catch((error) => {
+        setIndicatorVisibility(false);
+        setErrorModal(true);
+        console.log(error.response.data);
+      });
+  };
+  
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -87,7 +126,7 @@ export default function UserProfile() {
             >
               <View>
                 <Image
-                  source={require("../assets/images/avatar.jpg")}
+                  source={avatar}
                   style={{ borderRadius: 50, height: 100, width: 100 }}
                   resizeMode="contain"
                 />
@@ -463,7 +502,7 @@ export default function UserProfile() {
                         color={colors.black}
                         width={100}
                         mt={10}
-                        onPress={() => setModalVisible(false)}
+                        onPress={handleProfileImage}
                         disabled={indicatorVisible}
                       />
                       <DetailsButton

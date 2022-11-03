@@ -145,6 +145,7 @@ export default function SignupScreen({ navigation }) {
                           joinDate: response.data.joinDate,
                           wishlist: response.data.wishlist,
                           games: response.data.games,
+                          image: response.data.user.image,
                         })
                       );
                       dispatch(UserActions.setToken(response.data.token));

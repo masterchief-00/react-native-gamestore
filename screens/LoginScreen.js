@@ -125,7 +125,7 @@ export default function LoginScreen({ navigation }) {
                 }}
                 onSubmit={async (values) => {
                   setIndicatorVisibility(true);
-                  
+
                   await axios({
                     method: "post",
                     url: `${API_URL}/users/login`,
@@ -145,6 +145,7 @@ export default function LoginScreen({ navigation }) {
                             joinDate: response.data.joinDate,
                             wishlist: response.data.wishlist,
                             games: response.data.games,
+                            image: response.data.user.image,
                           })
                         );
                         dispatch(UserActions.setToken(response.data.token));

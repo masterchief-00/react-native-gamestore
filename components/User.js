@@ -16,12 +16,18 @@ import { useSelector } from "react-redux";
 export default function User() {
   const token = useSelector((state) => state.user.token);
   const userName = useSelector((state) => state.user.userData.name);
+  const userImage = useSelector((state) => state.user.userData.image);
   const navigation = useNavigation();
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
 
+  const avatar =
+    userImage !== null
+      ? { uri: userImage }
+      : require("../assets/images/avatar.jpg");
+
   const handleLogout = async () => {
     setIndicatorVisibility(true);
-    
+
     await axios({
       method: "post",
       url: `${API_URL}/users/logout`,
@@ -52,7 +58,7 @@ export default function User() {
         style={{ flexDirection: "row", alignItems: "center" }}
       >
         <Image
-          source={require("../assets/images/avatar.jpg")}
+          source={avatar}
           style={{ borderRadius: 50, height: 40, width: 40 }}
           resizeMode="contain"
         />

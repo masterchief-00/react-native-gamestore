@@ -11,6 +11,7 @@ const UserSlice = createSlice({
       joinDate: "",
       wishlist: 0,
       game: 0,
+      avatar: null,
     },
     token: "",
     test: "initial",
@@ -25,6 +26,7 @@ const UserSlice = createSlice({
         joinDate: action.payload.joinDate,
         wishlist: action.payload.wishlist,
         games: action.payload.games,
+        image: action.payload.image,
       };
     },
     clearUserData(state, action) {
