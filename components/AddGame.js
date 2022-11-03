@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { API_URL } from "@env";
 import * as FileSystem from "expo-file-system";
-import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
+import { manipulateAsync } from "expo-image-manipulator";
 
 export default function AddGame() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,15 +44,10 @@ export default function AddGame() {
         allowsEditing: true,
         aspect: [16, 9],
       });
-      // result.
       if (!result.cancelled) {
-        const dummyManipulationResult = await manipulateAsync(
-          result.uri,
-          [],
-          {}
-        );
+        const dummyManipulationResult = await manipulateAsync(result.uri);
 
-        setImageWide(dummyManipulationResult);
+        setImageWide(dummyManipulationResult.uri);
       }
     } else if (type === "tall") {
       result = await ImagePicker.launchImageLibraryAsync({
@@ -61,17 +56,11 @@ export default function AddGame() {
       });
 
       if (!result.cancelled) {
-        const dummyManipulationResult = await manipulateAsync(
-          result.uri,
-          [],
-          {}
-        );
+        const dummyManipulationResult = await manipulateAsync(result.uri);
 
-        setImageTall(dummyManipulationResult);
+        setImageTall(dummyManipulationResult.uri);
       }
     }
-
-    console.log(result.uri);
   };
 
   const handleNewGame = () => {
@@ -203,13 +192,14 @@ export default function AddGame() {
 
                         try {
                           const response = await FileSystem.uploadAsync(
-                            `${API_URL}/games/${game_id}`,
-                            imageWide.toString(),
+                            `${API_URL}/games/images/wide/${game_id}?_method=PUT`,
+                            imageWide,
                             {
                               fieldName: "image_wide",
-                              httpMethod: "PUT",
+                              httpMethod: "POST",
                               uploadType:
-                                FileSystem.FileSystemUploadType.BINARY_CONTENT,
+                                FileSystem.FileSystemUploadType.MULTIPART,
+                              headers: { Authorization: `Bearer ${token}` },
                             }
                           );
                         } catch (error) {
@@ -219,13 +209,14 @@ export default function AddGame() {
 
                         try {
                           const response = await FileSystem.uploadAsync(
-                            `${API_URL}/games/${game_id}`,
-                            imageTall.toString(),
+                            `${API_URL}/games/images/tall/${game_id}?_method=PUT`,
+                            imageTall,
                             {
                               fieldName: "image_tall",
-                              httpMethod: "PUT",
+                              httpMethod: "POST",
                               uploadType:
-                                FileSystem.FileSystemUploadType.BINARY_CONTENT,
+                                FileSystem.FileSystemUploadType.MULTIPART,
+                              headers: { Authorization: `Bearer ${token}` },
                             }
                           );
                         } catch (error) {
