@@ -81,17 +81,32 @@ export default function UserProfile() {
       }
     )
       .then((response) => {
-        setIndicatorVisibility(false);
-        setModalVisible(false);
-        console.log(response);
+        if (response.status === 200) {
+          let serverData = JSON.parse(response.body);
+          dispatch(
+            UserActions.setUserData({
+              name: serverData.user.name,
+              email: serverData.user.email,
+              about: serverData.user.about,
+              location: serverData.user.location,
+              joinDate: serverData.joinDate,
+              wishlist: serverData.wishlist,
+              games: serverData.games,
+              image: serverData.user.image,
+            })
+          );
+          dispatch(UserActions.setToken(serverData.token));
+          setIndicatorVisibility(false);
+          setModalVisible(false);
+        }
       })
       .catch((error) => {
         setIndicatorVisibility(false);
         setErrorModal(true);
-        console.log(error.response.data);
+        console.log(error);
       });
   };
-  
+
   return (
     <View style={{ flex: 1 }}>
       <ImageBackground
@@ -560,6 +575,7 @@ export default function UserProfile() {
                                   joinDate: response.data.joinDate,
                                   wishlist: response.data.wishlist,
                                   games: response.data.games,
+                                  image: response.data.user.image,
                                 })
                               );
                               dispatch(
@@ -689,6 +705,7 @@ export default function UserProfile() {
                                   joinDate: response.data.joinDate,
                                   wishlist: response.data.wishlist,
                                   games: response.data.games,
+                                  image: response.data.user.image,
                                 })
                               );
                               dispatch(
