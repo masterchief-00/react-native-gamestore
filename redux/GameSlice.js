@@ -24,7 +24,7 @@ const GameSlice = createSlice({
           )
         ) {
           Object.assign(game, { newId: id });
-          state.userGames.push(game);
+          state.categorySearchGames.push(game);
         } else {
           continue;
         }
@@ -117,6 +117,8 @@ const GameSlice = createSlice({
         state.categorySearchGames = [];
       } else if (action.payload === "USER") {
         state.userGames = [];
+      } else if (action.payload === "SEARCH") {
+        state.categorySearchGames = [];
       } else {
         state.categorySearchGames = [];
       }

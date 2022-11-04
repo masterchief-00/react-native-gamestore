@@ -22,12 +22,12 @@ import axios from "axios";
 import { API_URL } from "@env";
 import { gameActions } from "../redux/GameSlice";
 import { useIsFocused } from "@react-navigation/native";
+import SearchResults from "../components/SearchResults";
 
 const bgImage = require("../assets/images/home-bg-1.jpg");
 
 export default function HomeScreen({ navigation }) {
   const userData = useSelector((state) => state.user.userData);
-  const categories = useSelector((state) => state.category.categories);
   const newGames = useSelector((state) => state.game.newGames);
   const topGames = useSelector((state) => state.game.topGames);
   const mostDownloaded = useSelector((state) => state.game.mostDownloaded);
@@ -96,9 +96,7 @@ export default function HomeScreen({ navigation }) {
           <HomeSearch />
           <QuickSearch />
           {activeCategory !== "explore" && (
-            <ScrollView style={{ marginTop: 15 }}>
-              <Text style={{ color: "white" }}>{activeCategory}</Text>
-            </ScrollView>
+            <SearchResults query={activeCategory} />
           )}
           {activeCategory === "explore" && (
             <ScrollView style={{ marginTop: 15 }}>

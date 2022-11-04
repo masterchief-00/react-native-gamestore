@@ -32,30 +32,6 @@ export default function QuickSearch() {
 
   const categorySearch = async (category) => {
     dispatch(gameActions.setActiveCategory(category));
-
-    if (activeCategory !== "explore") {
-      await axios({
-        method: "get",
-        url: `${API_URL}/games/search/${activeCategory}`,
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            console.log(response.data.category_search_result);
-            dispatch(
-              gameActions.setSearchResults({
-                list: response.data.category_search_result,
-              })
-            );
-            dispatch(
-              gameActions.attachCategoryName__categorySearch({
-                list: categoryList,
-              })
-            );
-          }
-        })
-        .catch((error) => console.log(error));
-    }
   };
 
   useEffect(() => {

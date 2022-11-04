@@ -31,7 +31,7 @@ export default function GameCard_elite({ data, cardOpen }) {
         />
       )}
       <Image
-        source={data.image}
+        source={{ uri: data.image_wide }}
         resizeMode="stretch"
         style={{
           height: 175,
@@ -56,7 +56,7 @@ export default function GameCard_elite({ data, cardOpen }) {
             textShadowRadius: 15,
           }}
         >
-          {data.name}
+          {data.title}
         </Text>
       </View>
       <View
@@ -86,7 +86,7 @@ export default function GameCard_elite({ data, cardOpen }) {
         </View>
         <Type
           opacity={0.9}
-          data={data.type}
+          data={data.category_name}
           pt={cardFold ? 0 : 2}
           fs={cardFold ? 14 : 11}
         />
