@@ -6,6 +6,7 @@ import { API_URL } from "@env";
 import { useDispatch, useSelector } from "react-redux";
 import GameCard_elite from "./GameCard_elite";
 import { gameActions } from "../redux/GameSlice";
+import { colors } from "../data/Colours";
 
 export default function SearchResults({ query }) {
   const isFocused = useIsFocused();
@@ -23,7 +24,6 @@ export default function SearchResults({ query }) {
       })
         .then((response) => {
           if (response.status === 200) {
-            console.log(response.data.category_search_result);
             dispatch(
               gameActions.setSearchResults({
                 list: response.data.category_search_result,
@@ -48,9 +48,35 @@ export default function SearchResults({ query }) {
   }, [isFocused, query]);
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 15 }}>
-      <Text style={{ color: "white" }}>{query}</Text>
+      <Text
+        style={{
+          color: colors.white,
+          fontWeight: "bold",
+          fontSize: 26,
+          marginBottom: 20,
+        }}
+      >
+        Search results
+      </Text>
+      {gameResults.length < 1 && (
+        <Text
+          style={{
+            color: colors.primary_variant_x,
+            fontWeight: "200",
+            fontSize: 20,
+            marginBottom: 20,
+            alignSelf: "center",
+            borderStyle: "dashed",
+            borderColor: colors.primary_variant_x,
+            borderWidth: 1,
+            padding: 5,
+          }}
+        >
+          No results found
+        </Text>
+      )}
       {gameResults.map((game) => (
-        <GameCard_elite key={game.newId} data={game} cardOpen={false} />
+        <GameCard_elite key={game.newId} data={game} cardOpen={true} />
       ))}
     </ScrollView>
   );
