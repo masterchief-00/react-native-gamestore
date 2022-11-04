@@ -8,9 +8,6 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { gameActions } from "../redux/GameSlice";
 import { API_URL } from "@env";
-import { CategoryActions } from "../redux/CategorySlice";
-
-const newGames = games.slice(5, 9);
 
 export default function YourGames() {
   const navigation = useNavigation();
@@ -31,16 +28,16 @@ export default function YourGames() {
       .then((response) => {
         if (response.status === 200) {
           dispatch(gameActions.setUserGames({ list: response.data.games }));
-          dispatch(gameActions.attachCategoryName({ list: categories }));
+          dispatch(
+            gameActions.attachCategoryName__user({
+              list: response.data.categories,
+            })
+          );
         }
       })
       .catch((error) => console.log(error));
   };
-  const getCategoryName = (id) => {
-    let foundCategory = categories[id].name;
-    console.log(foundCategory);
-    return foundCategory;
-  };
+
   useEffect(() => {
     if (isFocused) {
       fetchGames();

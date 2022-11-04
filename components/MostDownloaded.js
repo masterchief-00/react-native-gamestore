@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const mostDownloadedGames = games.sort((a, b) => b.downloads - a.downloads);
 
-export default function MostDownloaded() {
+export default function MostDownloaded({ data }) {
   const navigation = useNavigation();
   return (
     <View
@@ -28,17 +28,17 @@ export default function MostDownloaded() {
         Most downloaded
       </Text>
       <ScrollView horizontal>
-        {mostDownloadedGames.slice(0, 4).map((game) => (
+        {data.map((game) => (
           <TouchableOpacity
             key={game.id}
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Details", { game })}
           >
             <GameCard
-              image={game.image}
-              name={game.name}
+              image={{ uri: game.image_wide }}
+              name={game.title}
               downloads={game.downloads}
-              type={game.type}
+              type={game.category_name}
               rating={game.rating}
             />
           </TouchableOpacity>

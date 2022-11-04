@@ -5,9 +5,7 @@ import GameCard from "./GameCard";
 import { games } from "../data/Games";
 import { useNavigation } from "@react-navigation/native";
 
-const newGames = games.slice(5, 9);
-
-export default function NewGames() {
+export default function NewGames({data}) {
   const navigation = useNavigation();
   return (
     <View
@@ -28,17 +26,17 @@ export default function NewGames() {
         New games
       </Text>
       <ScrollView horizontal>
-        {newGames.map((game) => (
+        {data.map((game) => (
           <TouchableOpacity
             key={game.id}
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Details", {game})}
           >
             <GameCard
-              image={game.image}
-              name={game.name}
+              image={{uri:game.image_wide}}
+              name={game.title}
               downloads={game.downloads}
-              type={game.type}
+              type={game.category_name}
               rating={game.rating}
             />
           </TouchableOpacity>

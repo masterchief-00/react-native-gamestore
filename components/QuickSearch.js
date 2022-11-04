@@ -18,6 +18,7 @@ import { API_URL } from "@env";
 import { useIsFocused } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { CategoryActions } from "../redux/CategorySlice";
+import { gameActions } from "../redux/GameSlice";
 
 export default function QuickSearch() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,14 +26,42 @@ export default function QuickSearch() {
   const isFocused = useIsFocused();
   const categoryList = useSelector((state) => state.category.categories);
   const dispatch = useDispatch();
-  const [activeCategory, setActiveCategory] = useState("explore");
+  const activeCategory = useSelector((state) => state.game.activeCategory);
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
   const [errorModal, setErrorModal] = useState(false);
+
+  const categorySearch = async (category) => {
+    dispatch(gameActions.setActiveCategory(category));
+
+    if (activeCategory !== "explore") {
+      await axios({
+        method: "get",
+        url: `${API_URL}/games/search/${activeCategory}`,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(response.data.category_search_result);
+            dispatch(
+              gameActions.setSearchResults({
+                list: response.data.category_search_result,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__categorySearch({
+                list: categoryList,
+              })
+            );
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+  };
 
   useEffect(() => {
     if (isFocused) {
       dispatch(CategoryActions.clearCategories());
-      
+
       axios({
         method: "get",
         url: `${API_URL}/categories`,
@@ -72,17 +101,22 @@ export default function QuickSearch() {
         {categoryList.map((category, index) => (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setActiveCategory(category.name)}
+            onPress={() => {
+              category.name === "explore"
+                ? categorySearch(category.name)
+                : categorySearch(category.id);
+            }}
             key={index}
             style={
-              activeCategory === category.name
+              activeCategory === category.name || activeCategory === category.id
                 ? styles.category_selected
                 : styles.category_normal
             }
           >
             <Text
               style={
-                activeCategory === category.name
+                activeCategory === category.name ||
+                activeCategory === category.id
                   ? styles.text_selected
                   : styles.text_normal
               }

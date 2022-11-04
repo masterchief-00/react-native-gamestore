@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const topGames = games.filter((game) => game.rating >= 4);
 
-export default function TopGames() {
+export default function TopGames({data}) {
     const navigation=useNavigation()
   return (
     <View
@@ -28,7 +28,7 @@ export default function TopGames() {
         Top rated games
       </Text>
       <ScrollView horizontal>
-        {topGames.map((game) => (
+        {data.map((game) => (
           <TouchableOpacity
             activeOpacity={0.8}
             key={game.id}
@@ -36,10 +36,10 @@ export default function TopGames() {
           >
             <GameCard
               key={game.id}
-              image={game.image}
-              name={game.name}
+              image={{uri:game.image_wide}}
+              name={game.title}
               downloads={game.downloads}
-              type={game.type}
+              type={game.category_name}
               rating={game.rating}
             />
           </TouchableOpacity>

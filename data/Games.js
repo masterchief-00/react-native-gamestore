@@ -89,7 +89,7 @@ export const games = [
     description:
       "Max Payne is a neo-noir third-person shooter video game series developed by Remedy Entertainment and Rockstar Studios. The series is named after its protagonist, Max Payne, a New York City police detective turned vigilante after his family was murdered by drug addicts.",
     image: {
-      uri: "https://static01.nyt.com/images/2012/05/15/arts/PAYNE/PAYNE-superJumbo.jpg",
+      uri: "https://images3.alphacoders.com/269/thumb-1920-269965.jpg",
     },
     image_tall: require("../assets/images/bg-max.jpg"),
     rating: 2.5,

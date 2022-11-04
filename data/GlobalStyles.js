@@ -13,6 +13,10 @@ export const globalStyles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 15,
   },
+  imageWishlist: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
   container: {
     flex: 1,
   },

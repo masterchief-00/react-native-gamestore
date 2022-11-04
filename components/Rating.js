@@ -3,7 +3,7 @@ import React from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
 
-export default function Rating({ rate,size=15 }) {
+export default function Rating({ rate, size = 15, showPeople = true }) {
   return (
     <View
       style={{
@@ -45,7 +45,9 @@ export default function Rating({ rate,size=15 }) {
           color="yellow"
         />
       </View>
-      <Text style={{ color: colors.white_a, fontSize: 9 }}>(3,445,234)</Text>
+      {showPeople && (
+        <Text style={{ color: colors.white_a, fontSize: 9 }}>(3,445,234)</Text>
+      )}
     </View>
   );
 }
