@@ -23,7 +23,7 @@ const CategorySlice = createSlice({
       if (!existingItem) {
         state.categories.push(newCategory);
       }
-    },
+    },    
     clearCategories(state, action) {
       state.categories = [{ name: "explore" }];
     },

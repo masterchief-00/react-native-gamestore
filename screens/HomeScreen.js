@@ -10,10 +10,15 @@ import QuickSearch from "../components/QuickSearch";
 import AddGame from "../components/AddGame";
 import LatestWishlist from "../components/LatestWishlist";
 import { StatusBar } from "expo-status-bar";
+import { useSelector } from "react-redux";
+import YourGames from "../components/YourGames";
 
 const bgImage = require("../assets/images/home-bg-1.jpg");
 
 export default function HomeScreen({ navigation }) {
+  const userData = useSelector((state) => state.user.userData);
+  const userHasGames = userData.games > 0;
+  
   return (
     <View style={globalStyles.container}>
       <StatusBar style="light" />
@@ -30,6 +35,7 @@ export default function HomeScreen({ navigation }) {
             <NewGames />
             <TopGames />
             <MostDownloaded />
+            {userHasGames && <YourGames />}
             <LatestWishlist />
           </ScrollView>
           <AddGame />

@@ -13,7 +13,7 @@ export default function GameDetails({ route }) {
   return (
     <View style={globalStyles.container}>
       <ImageBackground
-        source={game.image_tall}
+        source={{uri:game.image_tall}}
         resizeMode="cover"
         style={globalStyles.image}
       >
@@ -48,7 +48,7 @@ export default function GameDetails({ route }) {
                     textShadowRadius: 8,
                   }}
                 >
-                  {game.name}
+                  {game.title}
                 </Text>
                 <View>
                   <Text
@@ -61,7 +61,7 @@ export default function GameDetails({ route }) {
                       textAlign: "center",
                     }}
                   >
-                    {game.type}
+                    {game.category_name}
                   </Text>
                   <Rating rate={game.rating} />
                 </View>
