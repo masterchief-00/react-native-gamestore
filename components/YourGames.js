@@ -2,7 +2,6 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
 import { colors } from "../data/Colours";
 import GameCard from "./GameCard";
-import { games } from "../data/Games";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +13,6 @@ export default function YourGames() {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
 
-  const categories = useSelector((state) => state.category.categories);
   const userData = useSelector((state) => state.user.userData);
   const userGames = useSelector((state) => state.game.userGames);
   const token = useSelector((state) => state.user.token);
@@ -74,6 +72,7 @@ export default function YourGames() {
               downloads={game.downloads}
               type={game.category_name}
               rating={game.rating}
+              isOnWishlist={game.isOnWishlist===1 ? true : false}
             />
           </TouchableOpacity>
         ))}

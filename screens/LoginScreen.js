@@ -24,6 +24,7 @@ import axios from "axios";
 import { API_URL } from "@env";
 import { useDispatch, useSelector } from "react-redux";
 import { UserActions } from "../redux/UserSlice";
+import { gameActions } from "../redux/GameSlice";
 
 const bgImage = {
   uri: "https://www.xtrafondos.com/en/descargar.php?id=1766&vertical=1",
@@ -136,6 +137,7 @@ export default function LoginScreen({ navigation }) {
                   })
                     .then((response) => {
                       if (response.status === 200) {
+                        // console.log(response.data.wishlist_games)
                         dispatch(
                           UserActions.setUserData({
                             name: response.data.user.name,
@@ -154,7 +156,7 @@ export default function LoginScreen({ navigation }) {
                     })
                     .catch((error) => {
                       handleLoginError();
-                      console.log(error.response.data);
+                      console.log(error);
                     });
                 }}
               >

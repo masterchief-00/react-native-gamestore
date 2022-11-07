@@ -1,11 +1,58 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
 import Rating from "./Rating";
 import Type from "./Type";
+import axios from "axios";
+import { API_URL } from "@env";
+import { useSelector } from "react-redux";
 
-export default function GameCard({ image, name, downloads, type, rating }) {
+export default function GameCard({
+  image,
+  name,
+  downloads,
+  type,
+  rating,
+  gameID,
+  isOnWishlist,
+}) {
+  const [favorite, setFavorite] = useState(isOnWishlist);
+  const token = useSelector((state) => state.user.token);
+
+  const handleAddFavorite = async () => {
+    if (!favorite) {
+      await axios({
+        method: "post",
+        url: `${API_URL}/wishlist`,
+        data: {
+          game_id: gameID,
+        },
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(response.data.message);
+            setFavorite(!favorite);
+          }
+        })
+        .catch((error) => console.log(error.response.data));
+    } else {
+      await axios({
+        method: "delete",
+        url: `${API_URL}/wishlist/${gameID}`,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            console.log(response.data.message);
+            setFavorite(!favorite);
+          }
+        })
+        .catch((error) => console.log(error.response.data));
+    }
+  };
+
   return (
     <View
       style={{
@@ -70,13 +117,18 @@ export default function GameCard({ image, name, downloads, type, rating }) {
         <Rating rate={rating} />
       </View>
       <TouchableOpacity
+        onPress={handleAddFavorite}
         style={{
           position: "absolute",
           top: 10,
           right: 10,
         }}
       >
-        <MaterialIcons name="favorite-border" size={30} color="white" />
+        <MaterialIcons
+          name={favorite == 1 ? "favorite" : "favorite-border"}
+          size={30}
+          color="white"
+        />
       </TouchableOpacity>
     </View>
   );

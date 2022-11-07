@@ -1,10 +1,4 @@
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Text,
-  ImageBackground,
-} from "react-native";
+import { View, ScrollView, StyleSheet, ImageBackground } from "react-native";
 import React, { useEffect } from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import HomeSearch from "../components/HomeSearch";
@@ -31,6 +25,8 @@ export default function HomeScreen({ navigation }) {
   const newGames = useSelector((state) => state.game.newGames);
   const topGames = useSelector((state) => state.game.topGames);
   const mostDownloaded = useSelector((state) => state.game.mostDownloaded);
+  const allGames = useSelector((state) => state.game.userGames);
+  const wishlistGames = allGames.filter((game) => game.isOnWishlist === 1);
 
   const token = useSelector((state) => state.user.token);
   const activeCategory = useSelector((state) => state.game.activeCategory);
@@ -106,7 +102,7 @@ export default function HomeScreen({ navigation }) {
                 <MostDownloaded data={mostDownloaded} />
               )}
               {userHasGames && <YourGames />}
-              <LatestWishlist />
+              {wishlistGames.length > 0 && <LatestWishlist />}
             </ScrollView>
           )}
           {activeCategory === "explore" && <AddGame />}

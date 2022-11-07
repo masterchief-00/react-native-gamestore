@@ -2,12 +2,14 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
 import { colors } from "../data/Colours";
 import GameCard from "./GameCard";
-import { games } from "../data/Games";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
-const wishlistLatest = games.slice(3, 6);
 
 export default function LatestWishlist() {
+  const allGames = useSelector((state) => state.game.userGames);
+  const wishlistGames = allGames.filter((game) => game.isOnWishlist === 1);
+
   const navigation = useNavigation();
   return (
     <View
@@ -28,18 +30,19 @@ export default function LatestWishlist() {
         Latest on your Wishlist
       </Text>
       <ScrollView horizontal>
-        {wishlistLatest.slice(0, 4).map((game) => (
+        {wishlistGames.map((game) => (
           <TouchableOpacity
             key={game.id}
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Details", { game })}
           >
             <GameCard
-              image={game.image}
-              name={game.name}
+              image={{ uri: game.image_wide }}
+              name={game.title}
               downloads={game.downloads}
-              type={game.type}
+              type={game.category_name}
               rating={game.rating}
+              isOnWishlist={game.isOnWishlist ? true : false}
             />
           </TouchableOpacity>
         ))}

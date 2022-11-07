@@ -9,11 +9,9 @@ const GameSlice = createSlice({
     topGames: [],
     mostDownloaded: [],
     activeCategory: "explore",
+    isOnWishlist: 0,
   },
   reducers: {
-    setActiveCategory(state, action) {
-      state.activeCategory = action.payload;
-    },
     setSearchResults(state, action) {
       let id = 0;
 

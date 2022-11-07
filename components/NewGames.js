@@ -2,7 +2,6 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
 import { colors } from "../data/Colours";
 import GameCard from "./GameCard";
-import { games } from "../data/Games";
 import { useNavigation } from "@react-navigation/native";
 
 export default function NewGames({data}) {
@@ -38,6 +37,8 @@ export default function NewGames({data}) {
               downloads={game.downloads}
               type={game.category_name}
               rating={game.rating}
+              gameID={game.id}
+              isOnWishlist={game.isOnWishlist===1 ? true : false}
             />
           </TouchableOpacity>
         ))}

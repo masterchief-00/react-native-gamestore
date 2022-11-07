@@ -9,7 +9,6 @@ import {
 import React from "react";
 import { globalStyles } from "../data/GlobalStyles";
 import { colors } from "../data/Colours";
-import { games } from "../data/Games";
 import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import GameCard_elite from "../components/GameCard_elite";
 import { useNavigation } from "@react-navigation/native";
@@ -18,15 +17,17 @@ import { useSelector } from "react-redux";
 const bgImage = require("../assets/images/home-bg-1.jpg");
 
 export default function WishList() {
-  const userImage = useSelector((state) => state.user.userData.image);
+  const userData = useSelector((state) => state.user.userData);
+  const userImage = userData.image;
+  const allGames = useSelector((state) => state.game.userGames);
+  const wishlistGames = allGames.filter((game) => game.isOnWishlist === 1);
+
   const navigation = useNavigation();
 
   const avatar =
     userImage !== null
       ? { uri: userImage }
       : require("../assets/images/avatar.jpg");
-
-  const wishlistGames = games;
 
   return (
     <View style={globalStyles.container}>
@@ -69,7 +70,10 @@ export default function WishList() {
                   marginLeft: 10,
                 }}
               >
-                20 items on the list
+                {userData.wishlist > 1
+                  ? `${userData.wishlist} items`
+                  : `${userData.wishlist} item`}{" "}
+                on the list
               </Text>
             </View>
           </View>

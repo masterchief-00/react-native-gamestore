@@ -22,6 +22,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { UserActions } from "../redux/UserSlice";
 import { API_URL } from "@env";
+import { gameActions } from "../redux/GameSlice";
 
 const bgImage = {
   uri: "https://images.wallpapersden.com/image/download/call-of-duty-warzone-hd-gaming_bGxmbmeUmZqaraWkpJRmaWllrWdqa2U.jpg",

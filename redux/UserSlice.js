@@ -11,7 +11,7 @@ const UserSlice = createSlice({
       joinDate: "",
       wishlist: 0,
       game: 0,
-      avatar: null,
+      image: null,
     },
     token: "",
     test: "initial",
