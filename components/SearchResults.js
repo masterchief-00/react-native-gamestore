@@ -1,5 +1,5 @@
-import { View, Text, ScrollView } from "react-native";
-import React, { useEffect } from "react";
+import { ActivityIndicator, Text, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import axios from "axios";
 import { API_URL } from "@env";
@@ -8,21 +8,29 @@ import GameCard_elite from "./GameCard_elite";
 import { gameActions } from "../redux/GameSlice";
 import { colors } from "../data/Colours";
 
-export default function SearchResults({ query }) {
+export default function SearchResults({ query, data = [] }) {
   const isFocused = useIsFocused();
   const token = useSelector((state) => state.user.token);
   const gameResults = useSelector((state) => state.game.categorySearchGames);
+  const homeSearchResults = useSelector(
+    (state) => state.game.homeSearchResults
+  );
   const categoryList = useSelector((state) => state.category.categories);
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const [isHomesearch, setIsHomeSearch] = useState(false);
   const dispatch = useDispatch();
 
   const fetchResults = async () => {
-    if (query !== "explore") {
+    setIndicatorVisibility(true);
+    setIsHomeSearch(false);
+    if (query !== "explore" && query !== "search") {
       await axios({
         method: "get",
         url: `${API_URL}/games/search/${query}`,
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
+          setIndicatorVisibility(false);
           if (response.status === 200) {
             dispatch(
               gameActions.setSearchResults({
@@ -37,6 +45,9 @@ export default function SearchResults({ query }) {
           }
         })
         .catch((error) => console.log(error));
+    } else if (query === "search") {
+      setIsHomeSearch(true);
+      setIndicatorVisibility(false);
     }
   };
 
@@ -58,7 +69,14 @@ export default function SearchResults({ query }) {
       >
         Search results
       </Text>
-      {gameResults.length < 1 && (
+      {indicatorVisible && (
+        <ActivityIndicator
+          size="large"
+          color={colors.primary_variant_x}
+          style={{ marginTop: 10 }}
+        />
+      )}
+      {gameResults.length < 1 && data.length < 1 && !indicatorVisible && (
         <Text
           style={{
             color: colors.primary_variant_x,
@@ -75,9 +93,13 @@ export default function SearchResults({ query }) {
           No results found
         </Text>
       )}
-      {gameResults.map((game) => (
-        <GameCard_elite key={game.newId} data={game} cardOpen={true} />
-      ))}
+      {!isHomesearch
+        ? gameResults.map((game) => (
+            <GameCard_elite key={game.newId} data={game} cardOpen={true} />
+          ))
+        : data.map((game) => (
+            <GameCard_elite key={game.newId} data={game} cardOpen={false} />
+          ))}
     </ScrollView>
   );
 }
