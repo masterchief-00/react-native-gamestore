@@ -8,13 +8,14 @@ import GameCard_elite from "./GameCard_elite";
 import { gameActions } from "../redux/GameSlice";
 import { colors } from "../data/Colours";
 
-export default function SearchResults({ query, data = [] }) {
+export default function SearchResults({ query }) {
   const isFocused = useIsFocused();
   const token = useSelector((state) => state.user.token);
   const gameResults = useSelector((state) => state.game.categorySearchGames);
   const homeSearchResults = useSelector(
     (state) => state.game.homeSearchResults
   );
+
   const categoryList = useSelector((state) => state.category.categories);
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
   const [isHomesearch, setIsHomeSearch] = useState(false);
@@ -23,6 +24,7 @@ export default function SearchResults({ query, data = [] }) {
   const fetchResults = async () => {
     setIndicatorVisibility(true);
     setIsHomeSearch(false);
+
     if (query !== "explore" && query !== "search") {
       await axios({
         method: "get",
@@ -45,7 +47,8 @@ export default function SearchResults({ query, data = [] }) {
           }
         })
         .catch((error) => console.log(error));
-    } else if (query === "search") {
+    }
+    if (query === "search") {
       setIsHomeSearch(true);
       setIndicatorVisibility(false);
     }
@@ -53,6 +56,8 @@ export default function SearchResults({ query, data = [] }) {
 
   useEffect(() => {
     if (isFocused) {
+      console.log("RUNNING");
+
       dispatch(gameActions.clearGames("SEARCH"));
       fetchResults();
     }
@@ -76,28 +81,30 @@ export default function SearchResults({ query, data = [] }) {
           style={{ marginTop: 10 }}
         />
       )}
-      {gameResults.length < 1 && data.length < 1 && !indicatorVisible && (
-        <Text
-          style={{
-            color: colors.primary_variant_x,
-            fontWeight: "200",
-            fontSize: 20,
-            marginBottom: 20,
-            alignSelf: "center",
-            borderStyle: "dashed",
-            borderColor: colors.primary_variant_x,
-            borderWidth: 1,
-            padding: 5,
-          }}
-        >
-          No results found
-        </Text>
-      )}
+      {gameResults.length < 1 &&
+        homeSearchResults.length < 1 &&
+        !indicatorVisible && (
+          <Text
+            style={{
+              color: colors.primary_variant_x,
+              fontWeight: "200",
+              fontSize: 20,
+              marginBottom: 20,
+              alignSelf: "center",
+              borderStyle: "dashed",
+              borderColor: colors.primary_variant_x,
+              borderWidth: 1,
+              padding: 5,
+            }}
+          >
+            No results found
+          </Text>
+        )}
       {!isHomesearch
         ? gameResults.map((game) => (
             <GameCard_elite key={game.newId} data={game} cardOpen={true} />
           ))
-        : data.map((game) => (
+        : homeSearchResults.map((game) => (
             <GameCard_elite key={game.newId} data={game} cardOpen={false} />
           ))}
     </ScrollView>

@@ -22,9 +22,8 @@ import { Audio } from "expo-av";
 import { Feather, Entypo } from "@expo/vector-icons";
 import axios from "axios";
 import { API_URL } from "@env";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { UserActions } from "../redux/UserSlice";
-import { gameActions } from "../redux/GameSlice";
 
 const bgImage = {
   uri: "https://www.xtrafondos.com/en/descargar.php?id=1766&vertical=1",

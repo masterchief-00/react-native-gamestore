@@ -27,9 +27,6 @@ export default function HomeScreen({ navigation }) {
   const mostDownloaded = useSelector((state) => state.game.mostDownloaded);
   const allGames = useSelector((state) => state.game.userGames);
   const wishlistGames = allGames.filter((game) => game.isOnWishlist === 1);
-  const homeSearchResults = useSelector(
-    (state) => state.game.homeSearchResults
-  );
 
   const token = useSelector((state) => state.user.token);
   const activeCategory = useSelector((state) => state.game.activeCategory);
@@ -95,7 +92,7 @@ export default function HomeScreen({ navigation }) {
           <HomeSearch />
           <QuickSearch />
           {activeCategory !== "explore" && (
-            <SearchResults data={homeSearchResults} query={activeCategory} />
+            <SearchResults query={activeCategory} />
           )}
           {activeCategory === "explore" && (
             <ScrollView style={{ marginTop: 15 }}>
