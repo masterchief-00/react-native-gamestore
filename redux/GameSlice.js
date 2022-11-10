@@ -6,6 +6,7 @@ const GameSlice = createSlice({
     userGames: [],
     categorySearchGames: [],
     homeSearchResults: [],
+    searchResults:[],
     newGames: [],
     topGames: [],
     mostDownloaded: [],
@@ -39,12 +40,12 @@ const GameSlice = createSlice({
 
       for (let game of action.payload.list) {
         if (
-          !state.categorySearchGames.find(
+          !state.searchResults.find(
             (resultGame) => resultGame.name === game.name
           )
         ) {
           Object.assign(game, { newId: id });
-          state.categorySearchGames.push(game);
+          state.searchResults.push(game);
         } else {
           continue;
         }
@@ -122,18 +123,18 @@ const GameSlice = createSlice({
         }
       }
     },
-    attachCategoryName__categorySearch(state, action) {
+    // attachCategoryName__categorySearch(state, action) {
+    //   for (let category of action.payload.list) {
+    //     for (let game of state.categorySearchGames) {
+    //       if (category.id === game.category_id) {
+    //         Object.assign(game, { category_name: category.name });
+    //       }
+    //     }
+    //   }
+    // },
+    attachCategoryName__search(state, action) {
       for (let category of action.payload.list) {
-        for (let game of state.categorySearchGames) {
-          if (category.id === game.category_id) {
-            Object.assign(game, { category_name: category.name });
-          }
-        }
-      }
-    },
-    attachCategoryName__homeSearch(state, action) {
-      for (let category of action.payload.list) {
-        for (let game of state.homeSearchResults) {
+        for (let game of state.searchResults) {
           if (category.id === game.category_id) {
             Object.assign(game, { category_name: category.name });
           }
@@ -148,7 +149,7 @@ const GameSlice = createSlice({
         state.userGames = [];
       } else if (action.payload === "SEARCH") {
         state.categorySearchGames = [];
-        state.homeSearchResults = [];
+        state.searchResults = [];
       } else {
         state.categorySearchGames = [];
       }

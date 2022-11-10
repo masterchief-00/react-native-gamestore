@@ -4,13 +4,14 @@ import { colors } from "../data/Colours";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { Formik } from "formik";
 import { gameActions } from "../redux/GameSlice";
-import axios from "axios";
-import { API_URL } from "@env";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function HomeSearch() {
-  const token = useSelector((state) => state.user.token);
   const dispatch = useDispatch();
+
+  const categorySearch = async (category) => {
+    dispatch(gameActions.setActiveCategory(category));
+  };
 
   return (
     <View
@@ -46,33 +47,7 @@ export default function HomeSearch() {
             query: null,
           }}
           onSubmit={async (values) => {
-            console.log(values);
-            await axios({
-              method: "get",
-              url: `${API_URL}/search/${values.query}`,
-              headers: { Authorization: `Bearer ${token}` },
-            })
-              .then((response) => {
-                if (response.status === 200) {
-                  if (response.data.results !== null) {
-                    dispatch(gameActions.clearGames("SEARCH"));
-                    dispatch(
-                      gameActions.setHomeSearchResults({
-                        list: response.data.results,
-                      })
-                    );
-                    dispatch(gameActions.setActiveCategory("search"));
-                    dispatch(
-                      gameActions.attachCategoryName__homeSearch({
-                        list: response.data.categories,
-                      })
-                    );
-                  }
-                }
-              })
-              .catch((error) => {
-                console.log(error);
-              });
+            categorySearch(values.query);
           }}
         >
           {({ handleChange, handleBlur, handleSubmit, resetForm, values }) => (

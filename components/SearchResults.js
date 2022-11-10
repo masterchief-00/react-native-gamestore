@@ -11,24 +11,20 @@ import { colors } from "../data/Colours";
 export default function SearchResults({ query }) {
   const isFocused = useIsFocused();
   const token = useSelector((state) => state.user.token);
-  const gameResults = useSelector((state) => state.game.categorySearchGames);
-  const homeSearchResults = useSelector(
-    (state) => state.game.homeSearchResults
-  );
+  const gameResults = useSelector((state) => state.game.searchResults);
 
   const categoryList = useSelector((state) => state.category.categories);
   const [indicatorVisible, setIndicatorVisibility] = useState(false);
-  const [isHomesearch, setIsHomeSearch] = useState(false);
   const dispatch = useDispatch();
 
   const fetchResults = async () => {
     setIndicatorVisibility(true);
-    setIsHomeSearch(false);
 
-    if (query !== "explore" && query !== "search") {
+    if (query !== "explore") {
+
       await axios({
         method: "get",
-        url: `${API_URL}/games/search/${query}`,
+        url: `${API_URL}/search/${query}`,
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
@@ -36,11 +32,11 @@ export default function SearchResults({ query }) {
           if (response.status === 200) {
             dispatch(
               gameActions.setSearchResults({
-                list: response.data.category_search_result,
+                list: response.data.results,
               })
             );
             dispatch(
-              gameActions.attachCategoryName__categorySearch({
+              gameActions.attachCategoryName__search({
                 list: categoryList,
               })
             );
@@ -48,16 +44,10 @@ export default function SearchResults({ query }) {
         })
         .catch((error) => console.log(error));
     }
-    if (query === "search") {
-      setIsHomeSearch(true);
-      setIndicatorVisibility(false);
-    }
   };
 
   useEffect(() => {
     if (isFocused) {
-      console.log("RUNNING");
-
       dispatch(gameActions.clearGames("SEARCH"));
       fetchResults();
     }
@@ -81,32 +71,26 @@ export default function SearchResults({ query }) {
           style={{ marginTop: 10 }}
         />
       )}
-      {gameResults.length < 1 &&
-        homeSearchResults.length < 1 &&
-        !indicatorVisible && (
-          <Text
-            style={{
-              color: colors.primary_variant_x,
-              fontWeight: "200",
-              fontSize: 20,
-              marginBottom: 20,
-              alignSelf: "center",
-              borderStyle: "dashed",
-              borderColor: colors.primary_variant_x,
-              borderWidth: 1,
-              padding: 5,
-            }}
-          >
-            No results found
-          </Text>
-        )}
-      {!isHomesearch
-        ? gameResults.map((game) => (
-            <GameCard_elite key={game.newId} data={game} cardOpen={true} />
-          ))
-        : homeSearchResults.map((game) => (
-            <GameCard_elite key={game.newId} data={game} cardOpen={false} />
-          ))}
+      {gameResults.length < 1 && !indicatorVisible && (
+        <Text
+          style={{
+            color: colors.primary_variant_x,
+            fontWeight: "200",
+            fontSize: 20,
+            marginBottom: 20,
+            alignSelf: "center",
+            borderStyle: "dashed",
+            borderColor: colors.primary_variant_x,
+            borderWidth: 1,
+            padding: 5,
+          }}
+        >
+          No results found
+        </Text>
+      )}
+      {gameResults.map((game) => (
+        <GameCard_elite key={game.newId} data={game} cardOpen={true} />
+      ))}
     </ScrollView>
   );
 }
