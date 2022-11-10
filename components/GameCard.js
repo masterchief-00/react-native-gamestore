@@ -1,4 +1,10 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState } from "react";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../data/Colours";
@@ -6,7 +12,9 @@ import Rating from "./Rating";
 import Type from "./Type";
 import axios from "axios";
 import { API_URL } from "@env";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { gameActions } from "../redux/GameSlice";
+import { UserActions } from "../redux/UserSlice";
 
 export default function GameCard({
   image,
@@ -18,9 +26,12 @@ export default function GameCard({
   isOnWishlist,
 }) {
   const [favorite, setFavorite] = useState(isOnWishlist);
+  const [indicatorVisible, setIndicatorVisibility] = useState(false);
+  const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
 
   const handleAddFavorite = async () => {
+    setIndicatorVisibility(true);
     if (!favorite) {
       await axios({
         method: "post",
@@ -31,12 +42,60 @@ export default function GameCard({
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
+          setIndicatorVisibility(false);
+
           if (response.status === 200) {
             console.log(response.data.message);
             setFavorite(!favorite);
+
+            dispatch(gameActions.clearGames("ALL"));
+            /** setting all games to states */
+            dispatch(gameActions.setNewGame({ list: response.data.new_games }));
+            dispatch(gameActions.setTopGame({ list: response.data.top_games }));
+            dispatch(
+              gameActions.setUserGames({ list: response.data.user_games })
+            );
+            dispatch(
+              gameActions.setMostDownloaded({
+                list: response.data.most_downloaded,
+              })
+            );
+
+            /** attaching category names */
+            dispatch(
+              gameActions.attachCategoryName__most({
+                list: response.data.categories,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__new({
+                list: response.data.categories,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__top({
+                list: response.data.categories,
+              })
+            );
+
+            dispatch(
+              gameActions.attachCategoryName__user({
+                list: response.data.categories,
+              })
+            );
+
+            dispatch(
+              UserActions.updateAfterWishlistChange({
+                wishlist: response.data.wishlist,
+                games: response.data.games_count,
+              })
+            );
           }
         })
-        .catch((error) => console.log(error.response.data));
+        .catch((error) => {
+          setIndicatorVisibility(false);
+          console.log(error.response.data);
+        });
     } else {
       await axios({
         method: "delete",
@@ -44,12 +103,59 @@ export default function GameCard({
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
+          setIndicatorVisibility(false);
+
           if (response.status === 200) {
             console.log(response.data.message);
             setFavorite(!favorite);
+
+            dispatch(gameActions.clearGames("ALL"));
+            /** setting all games to states */
+            dispatch(gameActions.setNewGame({ list: response.data.new_games }));
+            dispatch(gameActions.setTopGame({ list: response.data.top_games }));
+            dispatch(
+              gameActions.setUserGames({ list: response.data.user_games })
+            );
+            dispatch(
+              gameActions.setMostDownloaded({
+                list: response.data.most_downloaded,
+              })
+            );
+
+            /** attaching category names */
+            dispatch(
+              gameActions.attachCategoryName__most({
+                list: response.data.categories,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__new({
+                list: response.data.categories,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__top({
+                list: response.data.categories,
+              })
+            );
+            dispatch(
+              gameActions.attachCategoryName__user({
+                list: response.data.categories,
+              })
+            );
+
+            dispatch(
+              UserActions.updateAfterWishlistChange({
+                wishlist: response.data.wishlist,
+                games: response.data.games_count,
+              })
+            );
           }
         })
-        .catch((error) => console.log(error.response.data));
+        .catch((error) => {
+          setIndicatorVisibility(false);
+          console.log(error.response.data);
+        });
     }
   };
 
@@ -116,20 +222,28 @@ export default function GameCard({
         <Type data={type} />
         <Rating rate={rating} />
       </View>
-      <TouchableOpacity
-        onPress={handleAddFavorite}
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
-        }}
-      >
-        <MaterialIcons
-          name={favorite == 1 ? "favorite" : "favorite-border"}
-          size={30}
-          color="white"
+      {indicatorVisible ? (
+        <ActivityIndicator
+          size="small"
+          color={colors.white}
+          style={{ marginBottom: 10, position: "absolute", top: 10, right: 10 }}
         />
-      </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={handleAddFavorite}
+          style={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+          }}
+        >
+          <MaterialIcons
+            name={favorite == 1 ? "favorite" : "favorite-border"}
+            size={30}
+            color="white"
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

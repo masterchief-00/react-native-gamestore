@@ -4,9 +4,7 @@ const GameSlice = createSlice({
   name: "game",
   initialState: {
     userGames: [],
-    categorySearchGames: [],
-    homeSearchResults: [],
-    searchResults:[],
+    searchResults: [],
     newGames: [],
     topGames: [],
     mostDownloaded: [],
@@ -16,25 +14,7 @@ const GameSlice = createSlice({
   reducers: {
     setActiveCategory(state, action) {
       state.activeCategory = action.payload;
-    },
-    setHomeSearchResults(state, action) {
-      let id = 0;
-
-      for (let game of action.payload.list) {
-        if (
-          !state.homeSearchResults.find(
-            (resultGame) => resultGame.name === game.name
-          )
-        ) {
-          console.log('pushing!')
-          Object.assign(game, { newId: id });
-          state.homeSearchResults.push(game);
-        } else {
-          continue;
-        }
-      }
-      // console.log(action.payload.list);
-    },
+    },    
     setSearchResults(state, action) {
       let id = 0;
 
@@ -123,15 +103,6 @@ const GameSlice = createSlice({
         }
       }
     },
-    // attachCategoryName__categorySearch(state, action) {
-    //   for (let category of action.payload.list) {
-    //     for (let game of state.categorySearchGames) {
-    //       if (category.id === game.category_id) {
-    //         Object.assign(game, { category_name: category.name });
-    //       }
-    //     }
-    //   }
-    // },
     attachCategoryName__search(state, action) {
       for (let category of action.payload.list) {
         for (let game of state.searchResults) {
@@ -144,7 +115,9 @@ const GameSlice = createSlice({
     clearGames(state, action) {
       if (action.payload === "ALL") {
         state.userGames = [];
-        state.categorySearchGames = [];
+        state.newGames = [];
+        state.topGames = [];
+        state.mostDownloaded = [];
       } else if (action.payload === "USER") {
         state.userGames = [];
       } else if (action.payload === "SEARCH") {

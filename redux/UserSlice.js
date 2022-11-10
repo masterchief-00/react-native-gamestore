@@ -29,6 +29,18 @@ const UserSlice = createSlice({
         image: action.payload.image,
       };
     },
+    updateAfterWishlistChange(state, action) {
+      state.userData = {
+        wishlist: action.payload.wishlist,
+        games: action.payload.games,
+        name: state.userData.name,
+        email: state.userData.email,
+        about: state.userData.about,
+        location: state.userData.location,
+        joinDate: state.userData.joinDate,
+        image: state.userData.image,
+      };
+    },
     clearUserData(state, action) {
       state.userData = {
         name: "",

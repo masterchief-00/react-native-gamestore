@@ -42,6 +42,7 @@ export default function LatestWishlist() {
               downloads={game.downloads}
               type={game.category_name}
               rating={game.rating}
+              gameID={game.id}
               isOnWishlist={game.isOnWishlist ? true : false}
             />
           </TouchableOpacity>
